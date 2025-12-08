@@ -1,13 +1,14 @@
+ï»¿using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
     [SerializeField] PlayerInput input;
 
-    public Camera cam;             // RTS Ä«¸Ş¶ó
-    public LayerMask groundMask;   // ¶¥ ·¹ÀÌ¾î
-    public PlayerMover mover;      // ¿òÁ÷ÀÏ À¯´Ö
+    public Camera cam;             // RTS ì¹´ë©”ë¼
+    public LayerMask groundMask;   // ë•… ë ˆì´ì–´
+    public PlayerMover mover;      // ì›€ì§ì¼ ìœ ë‹›
 
     private InputAction RClick;
 
@@ -15,11 +16,26 @@ public class Player : MonoBehaviour
     {
         input = GetComponent<PlayerInput>();
         mover = GetComponent<PlayerMover>();
+        cam = FindAnyObjectByType<Camera>();
+        groundMask = LayerHelper.Instance.GetLayerToInt(LayerHelper.GridLayer);
+    }
+
+    private void Awake()
+    {
+        if (cam == null)
+        {
+            cam = FindAnyObjectByType<Camera>();
+        }
     }
 
     private void Start()
     {
         RClick = input.actions["RClick"];
+
+        if (IsOwner)
+        {
+            GetComponent<Renderer>().material.color = Color.red;
+        }
     }
 
     private void Update()
