@@ -49,12 +49,15 @@ public class EntityBase : NetworkBehaviour, IPoolObj
         base.OnNetworkSpawn();
 
         // Server에서만 AI 동작
-        if (!IsServer)
-        {
-            agent.enabled = false;
-            this.enabled = false;
-            return;
-        }
+        //if (!IsServer)
+        //{
+        //    agent.enabled = false;
+        //    this.enabled = false;
+
+        //    GetComponent<Rigidbody>().isKinematic = false;
+
+        //    return;
+        //}
 
         agent.speed = speed;
     }
