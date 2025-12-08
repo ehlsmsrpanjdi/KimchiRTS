@@ -1,5 +1,6 @@
 ﻿using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
 public class Player : NetworkBehaviour
@@ -26,6 +27,7 @@ public class Player : NetworkBehaviour
         {
             cam = FindAnyObjectByType<Camera>();
         }
+        PlayerManager.Instance.AddPlayer(this); 
     }
 
     private void Start()
@@ -36,10 +38,20 @@ public class Player : NetworkBehaviour
         {
             GetComponent<Renderer>().material.color = Color.red;
         }
+
+        if (!IsOwner)
+        {
+            mover.GetComponent<NavMeshAgent>().enabled = false;
+        }
     }
 
     private void Update()
     {
+        if (!IsOwner)
+        {
+            return;
+        }
+
         if (RClick.WasPerformedThisFrame())
         {
             TryMoveToMouse();
