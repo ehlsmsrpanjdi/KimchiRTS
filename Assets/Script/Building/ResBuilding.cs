@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ResBuilding : BuildingBase
 {
@@ -17,11 +17,16 @@ public class ResBuilding : BuildingBase
     }
     void Update()
     {
+        if (BuildingOwnerId.Value != GameInstance.Instance.GetPlayerID())
+        {
+            return;
+        }
+
         currentTime += Time.deltaTime;
         if (currentTime >= 1f)
         {
             currentTime = 0f;
-            GameInstance.Instance.ChangeResource(resAmount);
+            GameInstance.Instance.GetPlayer().playerResource.AddResource(resAmount);
         }
     }
 }

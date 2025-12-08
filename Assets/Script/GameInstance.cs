@@ -1,4 +1,4 @@
-using System;
+﻿using System.Collections.Generic;
 
 public class GameInstance
 {
@@ -15,13 +15,35 @@ public class GameInstance
         }
     }
 
-    public Action<int> OnChangeResource;
+    private ulong playerID = 0;
 
-    int resource = 0;
 
-    public void ChangeResource(int delta)
+    public Dictionary<ulong, Player> playerDic = new Dictionary<ulong, Player>();
+
+    public void SetPlayerID(ulong _ID)
     {
-        resource += delta;
-        OnChangeResource?.Invoke(resource);
+        playerID = _ID;
+        LogHelper.Log($"plyerID = " + _ID);
     }
+
+    public void AddPlayer(ulong playerID, Player _player)
+    {
+        playerDic.Add(playerID, _player);
+    }
+
+    public ulong GetPlayerID()
+    {
+        return playerID;
+    }
+
+    public Player GetPlayer()
+    {
+        return playerDic[playerID];
+    }
+
+    public Player GetPlayer(ulong _playerID)
+    {
+        return playerDic[_playerID];
+    }
+
 }

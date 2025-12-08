@@ -1,10 +1,10 @@
-using Unity.AI.Navigation;
+ï»¿using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.AI;
 
 [ExecuteAlways]
 public class GridArea : MonoBehaviour
 {
+    public static GridArea Instance;
     [Header("Grid Size (cells)")]
     public int width = 10;
     public int height = 10;
@@ -19,12 +19,13 @@ public class GridArea : MonoBehaviour
     [Header("Navigation")]
     public bool useNavMesh = true;
 
-    // ±×¸®µå Á¡À¯ »óÅÂ ÀúÀå
+    // ê·¸ë¦¬ë“œ ì ìœ  ìƒíƒœ ì €ì¥
     private GameObject[,] occupiedCells;
 
     private void Awake()
     {
         occupiedCells = new GameObject[width, height];
+        Instance = this;
     }
 
     public Vector2Int WorldToGrid(Vector3 worldPos)
@@ -114,12 +115,12 @@ public class GridArea : MonoBehaviour
         }
     }
 
-    // NavMesh Àç°è»ê (¼±ÅÃ»çÇ× - Runtime NavMesh BakingÀÌ ÇÊ¿äÇÔ)
+    // NavMesh ì¬ê³„ì‚° (ì„ íƒì‚¬í•­ - Runtime NavMesh Bakingì´ í•„ìš”í•¨)
     public void UpdateNavMesh()
     {
         if (!useNavMesh) return;
 
-        // NavMeshSurface°¡ ÀÖÀ¸¸é ´Ù½Ã Bake
+        // NavMeshSurfaceê°€ ìˆìœ¼ë©´ ë‹¤ì‹œ Bake
         NavMeshSurface surface = GetComponent<NavMeshSurface>();
         if (surface != null)
         {
@@ -138,7 +139,7 @@ public class GridArea : MonoBehaviour
         float halfH = (height * cellSize) * 0.5f;
         Vector3 origin = transform.position - new Vector3(halfW, 0, halfH);
 
-        // ¼¼·Î ¶óÀÎ
+        // ì„¸ë¡œ ë¼ì¸
         for (int x = 0; x <= width; x++)
         {
             Vector3 from = origin + new Vector3(x * cellSize, 0, 0);
@@ -146,7 +147,7 @@ public class GridArea : MonoBehaviour
             Gizmos.DrawLine(from, to);
         }
 
-        // °¡·Î ¶óÀÎ
+        // ê°€ë¡œ ë¼ì¸
         for (int y = 0; y <= height; y++)
         {
             Vector3 from = origin + new Vector3(0, 0, y * cellSize);

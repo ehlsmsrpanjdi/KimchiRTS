@@ -1,7 +1,9 @@
+ï»¿using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BuildingBase : MonoBehaviour
+public class BuildingBase : NetworkBehaviour
 {
     [Header("Building Info")]
     public string buildingName = "Building";
@@ -13,13 +15,28 @@ public class BuildingBase : MonoBehaviour
     public Vector2Int gridPosition;
 
     [Header("Navigation")]
-    public bool blockNavigation = true; // ³×ºñ°ÔÀÌ¼Ç Â÷´Ü ¿©ºÎ
-    public float carveHeight = 2f; // Carving ³ôÀÌ
+    public bool blockNavigation = true; // ë„¤ë¹„ê²Œì´ì…˜ ì°¨ë‹¨ ì—¬ë¶€
+    public float carveHeight = 2f; // Carving ë†’ì´
     [Range(0.8f, 1.0f)]
-    public float carveSizeMultiplier = 0.95f; // Carving Å©±â Á¶Àı (±×¸®µåº¸´Ù ¾à°£ ÀÛ°Ô)
+    public float carveSizeMultiplier = 0.95f; // Carving í¬ê¸° ì¡°ì ˆ (ê·¸ë¦¬ë“œë³´ë‹¤ ì•½ê°„ ì‘ê²Œ)
 
     private MeshRenderer meshRenderer;
     private NavMeshObstacle navMeshObstacle;
+
+    public NetworkVariable<ulong> BuildingOwnerId = new NetworkVariable<ulong>(
+        default,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    private void Reset()
+    {
+        NetworkObject net = GetComponent<NetworkObject>();
+        if (net == null)
+        {
+            transform.AddComponent<NetworkObject>();
+        }
+    }
 
     protected virtual void Awake()
     {
@@ -33,9 +50,10 @@ public class BuildingBase : MonoBehaviour
 
     public void Initialize()
     {
-        Debug.Log($"{buildingName} initialized at grid position: {gridPosition}");
+        LogHelper.Log($"{buildingName} initialized at grid position: {gridPosition}");
 
-        // »ö»óÀ» ¿ø·¡´ë·Î º¹¿ø
+        grid = GridArea.Instance;
+        // ìƒ‰ìƒì„ ì›ë˜ëŒ€ë¡œ ë³µì›
         if (meshRenderer != null)
         {
             MaterialPropertyBlock props = new MaterialPropertyBlock();
@@ -43,22 +61,22 @@ public class BuildingBase : MonoBehaviour
             meshRenderer.SetPropertyBlock(props);
         }
 
-        // NavMesh ¼³Á¤
+        // NavMesh ì„¤ì •
         if (blockNavigation)
         {
             SetupNavMeshObstacle();
         }
     }
 
-    public void SetGridInfo(GridArea gridArea, Vector2Int gridPos, int width, int height)
+    public void SetGridInfo(Vector2Int gridPos, int width, int height)
     {
-        grid = gridArea;
+        grid = GridArea.Instance;
         gridPosition = gridPos;
         sizeX = width;
         sizeY = height;
     }
 
-    // NavMeshObstacle ¼³Á¤
+    // NavMeshObstacle ì„¤ì •
     void SetupNavMeshObstacle()
     {
         if (navMeshObstacle != null)
@@ -69,14 +87,14 @@ public class BuildingBase : MonoBehaviour
         navMeshObstacle.carveOnlyStationary = true;
         navMeshObstacle.shape = NavMeshObstacleShape.Box;
 
-        // ±×¸®µå Å©±â ±âÁØÀ¸·Î Á¤È®ÇÏ°Ô ¼³Á¤
+        // ê·¸ë¦¬ë“œ í¬ê¸° ê¸°ì¤€ìœ¼ë¡œ ì •í™•í•˜ê²Œ ì„¤ì •
         if (grid != null)
         {
-            // center´Â ·ÎÄÃ ÁÂÇ¥ (0,0,0)
+            // centerëŠ” ë¡œì»¬ ì¢Œí‘œ (0,0,0)
             navMeshObstacle.center = Vector3.zero;
 
             navMeshObstacle.size = Vector3.one;
-            // size´Â ±×¸®µå Å©±â¿¡ Á¤È®È÷ ¸ÂÃã
+            // sizeëŠ” ê·¸ë¦¬ë“œ í¬ê¸°ì— ì •í™•íˆ ë§ì¶¤
             //navMeshObstacle.size = new Vector3(
             //    sizeX * grid.cellSize * carveSizeMultiplier,
             //    carveHeight,
@@ -93,7 +111,7 @@ public class BuildingBase : MonoBehaviour
         }
     }
 
-    // ³×ºñ°ÔÀÌ¼Ç Â÷´Ü È°¼ºÈ­/ºñÈ°¼ºÈ­
+    // ë„¤ë¹„ê²Œì´ì…˜ ì°¨ë‹¨ í™œì„±í™”/ë¹„í™œì„±í™”
     public void SetNavigationBlocking(bool block)
     {
         blockNavigation = block;
@@ -108,7 +126,7 @@ public class BuildingBase : MonoBehaviour
         }
     }
 
-    // NavMeshObstacle Á¦°Å
+    // NavMeshObstacle ì œê±°
     void RemoveNavMeshObstacle()
     {
         if (navMeshObstacle != null)
@@ -119,7 +137,7 @@ public class BuildingBase : MonoBehaviour
         }
     }
 
-    // ºôµù Á¦°Å
+    // ë¹Œë”© ì œê±°
     public void RemoveBuilding()
     {
         if (grid != null)
@@ -128,28 +146,30 @@ public class BuildingBase : MonoBehaviour
             Debug.Log($"{buildingName} removed from grid position: {gridPosition}");
         }
 
-        // NavMeshObstacleµµ ÇÔ²² Á¦°ÅµÊ
+        // NavMeshObstacleë„ í•¨ê»˜ ì œê±°ë¨
         Destroy(gameObject);
     }
 
-    private void OnDestroy()
+
+
+    protected new void OnDestroy()
     {
-        // ¿ÀºêÁ§Æ®°¡ ÆÄ±«µÉ ¶§ ±×¸®µå¿¡¼­µµ Á¦°Å
+        // ì˜¤ë¸Œì íŠ¸ê°€ íŒŒê´´ë  ë•Œ ê·¸ë¦¬ë“œì—ì„œë„ ì œê±°
         if (grid != null)
         {
             grid.RemoveBuilding(gridPosition.x, gridPosition.y, sizeX, sizeY);
         }
 
-        // NavMeshObstacle Á¤¸®
+        // NavMeshObstacle ì •ë¦¬
         RemoveNavMeshObstacle();
     }
 
-    // µğ¹ö±×¿ë Gizmo
+    // ë””ë²„ê·¸ìš© Gizmo
     private void OnDrawGizmosSelected()
     {
         if (grid == null) return;
 
-        // Â÷ÁöÇÏ´Â ±×¸®µå ¿µ¿ª
+        // ì°¨ì§€í•˜ëŠ” ê·¸ë¦¬ë“œ ì˜ì—­
         Gizmos.color = Color.yellow;
         Vector3 size = new Vector3(
             sizeX * grid.cellSize,
@@ -158,7 +178,7 @@ public class BuildingBase : MonoBehaviour
         );
         Gizmos.DrawWireCube(transform.position, size);
 
-        // NavMesh Carving ¿µ¿ª (½ÇÁ¦ obstacle Å©±â)
+        // NavMesh Carving ì˜ì—­ (ì‹¤ì œ obstacle í¬ê¸°)
         if (blockNavigation && navMeshObstacle != null)
         {
             Gizmos.color = Color.red;
@@ -168,7 +188,7 @@ public class BuildingBase : MonoBehaviour
         }
         else if (blockNavigation)
         {
-            // obstacleÀÌ ¾ÆÁ÷ »ı¼º ¾ÈµÆÀ» ¶§ ¿¹»ó Å©±â
+            // obstacleì´ ì•„ì§ ìƒì„± ì•ˆëì„ ë•Œ ì˜ˆìƒ í¬ê¸°
             Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
             Vector3 navSize = new Vector3(
                 sizeX * grid.cellSize * carveSizeMultiplier,
@@ -178,7 +198,7 @@ public class BuildingBase : MonoBehaviour
             Gizmos.DrawWireCube(transform.position, navSize);
         }
 
-        // Â÷ÁöÇÏ´Â ±×¸®µå Ä­ Ç¥½Ã
+        // ì°¨ì§€í•˜ëŠ” ê·¸ë¦¬ë“œ ì¹¸ í‘œì‹œ
         Gizmos.color = new Color(1f, 1f, 0f, 0.3f);
         for (int x = 0; x < sizeX; x++)
         {

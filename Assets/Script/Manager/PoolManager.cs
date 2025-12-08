@@ -69,7 +69,19 @@ public class PoolManager
         }
 
         // Pool에서 꺼내기
-        GameObject obj = poolDictionary[key].Dequeue();
+        GameObject obj = null;
+        while (obj == null)
+        {
+            obj = poolDictionary[key].Dequeue();
+            if (poolDictionary[key].Count <= 0)
+            {
+                obj = MonoBehaviour.Instantiate(AssetManager.Instance.GetByName(key));
+                break;
+            }
+        }
+
+
+
         obj.SetActive(true);
 
         var netObj = obj.GetComponent<NetworkObject>();

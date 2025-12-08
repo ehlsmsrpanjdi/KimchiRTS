@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class ResourceUI : UIBase
@@ -16,7 +16,14 @@ public class ResourceUI : UIBase
 
     protected override void Start()
     {
-        GameInstance.Instance.OnChangeResource += UpdateResourceUI;
+    }
+
+    public override void NetWorkBinding()
+    {
+        PlayerResource res = GameInstance.Instance.GetPlayer().playerResource;
+        res.OnChangeResource += UpdateResourceUI;
+
+        UpdateResourceUI(res.Resources.Value);
     }
 
     void UpdateResourceUI(int newAmount)

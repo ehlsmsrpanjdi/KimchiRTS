@@ -19,5 +19,6 @@ public class LoadManager
     public async Task LoadTemp()
     {
         await AssetManager.Instance.LoadByLabelAsync("Entity");
+        await AssetManager.Instance.LoadByLabelAsync("Building");
     }
 }

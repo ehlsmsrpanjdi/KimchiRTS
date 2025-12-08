@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 709482009492701400}
   - component: {fileID: 725585645613726337}
   - component: {fileID: 2975007617569000795}
-  - component: {fileID: 2999200775280846911}
+  - component: {fileID: -7526347429805706698}
   m_Layer: 0
-  m_Name: CubeBuilding
+  m_Name: CubeGhost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -109,7 +109,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2999200775280846911
+--- !u!114 &-7526347429805706698
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,14 +118,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7884783654505275388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34ca4fdd14ceac34d9ddeb8d06023d46, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d8450f6c1c4b67468862a4cc55cb850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingName: Building
-  sizeX: 4
-  sizeY: 4
   grid: {fileID: 0}
-  gridPosition: {x: 0, y: 0}
-  blockNavigation: 1
-  carveHeight: 2
-  carveSizeMultiplier: 0.95
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  buildingSizeX: 4
+  buildingSizeY: 4
+  validColor: {r: 0, g: 1, b: 0, a: 1}
+  invalidColor: {r: 1, g: 0, b: 0, a: 1}
+  BuildingName: Cube

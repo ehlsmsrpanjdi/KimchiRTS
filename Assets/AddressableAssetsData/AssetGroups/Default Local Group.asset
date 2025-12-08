@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Entity
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e77195e44a4cf1f4ea331352d4441a5f
+    m_Address: Assets/Prefab/Building
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Building
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f31b1cea1d7a03c42bcf45ef52564973, type: 2}
   m_SchemaSet:

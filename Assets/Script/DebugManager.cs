@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DebugManager : MonoBehaviour
 {
@@ -22,7 +22,7 @@ public class DebugManager : MonoBehaviour
 
     public void CreateGhost()
     {
-        MonoBehaviour.Instantiate(Ghost);
+        PoolManager.Instance.Pop("CubeGhost");
     }
 
 }

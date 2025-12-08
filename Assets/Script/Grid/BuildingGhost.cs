@@ -1,3 +1,4 @@
+ï»¿using Unity.Netcode;
 using UnityEngine;
 
 public class BuildingGhost : MonoBehaviour
@@ -7,11 +8,8 @@ public class BuildingGhost : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Building Size")]
-    public int buildingSizeX = 1; // °¡·Î Ä­ ¼ö
-    public int buildingSizeY = 1; // ¼¼·Î Ä­ ¼ö
-
-    [Header("Building Prefab")]
-    public GameObject buildingPrefab; // ½ÇÁ¦ »ı¼ºµÉ ºôµù ÇÁ¸®ÆÕ
+    public int buildingSizeX = 1; // ê°€ë¡œ ì¹¸ ìˆ˜
+    public int buildingSizeY = 1; // ì„¸ë¡œ ì¹¸ ìˆ˜
 
     [Header("Visual")]
     public Color validColor = Color.green;
@@ -20,6 +18,10 @@ public class BuildingGhost : MonoBehaviour
     private MeshRenderer meshRenderer;
     private Vector2Int currentGridPos;
     private bool isValidPlacement;
+
+    public int price = 10;
+
+    [SerializeField] string BuildingName;
 
     private void Awake()
     {
@@ -31,13 +33,13 @@ public class BuildingGhost : MonoBehaviour
         FollowMouse();
         UpdateVisual();
 
-        // Å¬¸¯À¸·Î ¹èÄ¡
+        // í´ë¦­ìœ¼ë¡œ ë°°ì¹˜
         if (Input.GetMouseButtonDown(0) && isValidPlacement)
         {
             PlaceBuilding();
         }
 
-        // ESC·Î Ãë¼Ò
+        // ESCë¡œ ì·¨ì†Œ
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             CancelPlacement();
@@ -50,21 +52,21 @@ public class BuildingGhost : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayer))
         {
-            // »õ·Î¿î gridArea Á¸Àç ¿©ºÎ Ã¼Å©
+            // ìƒˆë¡œìš´ gridArea ì¡´ì¬ ì—¬ë¶€ ì²´í¬
             GridArea newGrid = hit.collider.GetComponent<GridArea>();
 
-            // grid°¡ ¾ÆÁ÷ null ¡æ °¨ÁöµÈ grid¸¦ ¼¼ÆÃ
+            // gridê°€ ì•„ì§ null â†’ ê°ì§€ëœ gridë¥¼ ì„¸íŒ…
             if (grid == null && newGrid != null)
             {
                 grid = newGrid;
             }
             else if (grid != null && newGrid != grid)
             {
-                // ´Ù¸¥ grid·Î ÀÌµ¿ÇßÀ½ ¡æ grid ±³Ã¼
+                // ë‹¤ë¥¸ gridë¡œ ì´ë™í–ˆìŒ â†’ grid êµì²´
                 grid = newGrid;
             }
 
-            // grid°¡ ¾øÀ¸¸é snap ¾È ÇÔ
+            // gridê°€ ì—†ìœ¼ë©´ snap ì•ˆ í•¨
             if (grid == null)
             {
                 transform.position = hit.point;
@@ -72,21 +74,21 @@ public class BuildingGhost : MonoBehaviour
                 return;
             }
 
-            // ¸¶¿ì½º À§Ä¡(hit.point)¸¦ ±×¸®µå ÁÂÇ¥·Î º¯È¯
+            // ë§ˆìš°ìŠ¤ ìœ„ì¹˜(hit.point)ë¥¼ ê·¸ë¦¬ë“œ ì¢Œí‘œë¡œ ë³€í™˜
             Vector3 mouseWorldPos = hit.point;
 
-            // ºôµù Å©±âÀÇ ¿ÀÇÁ¼Â °è»ê (¸¶¿ì½º¸¦ Áß½É¿¡ µÎ±â À§ÇØ)
+            // ë¹Œë”© í¬ê¸°ì˜ ì˜¤í”„ì…‹ ê³„ì‚° (ë§ˆìš°ìŠ¤ë¥¼ ì¤‘ì‹¬ì— ë‘ê¸° ìœ„í•´)
             float offsetX = (buildingSizeX - 1) * grid.cellSize * 0.5f;
             float offsetZ = (buildingSizeY - 1) * grid.cellSize * 0.5f;
 
-            // ¿ÀÇÁ¼ÂÀ» Àû¿ëÇÑ À§Ä¡·Î ±×¸®µå ÁÂÇ¥ °è»ê
+            // ì˜¤í”„ì…‹ì„ ì ìš©í•œ ìœ„ì¹˜ë¡œ ê·¸ë¦¬ë“œ ì¢Œí‘œ ê³„ì‚°
             Vector3 adjustedPos = mouseWorldPos - new Vector3(offsetX, 0, offsetZ);
             Vector2Int gridPos = grid.WorldToGrid(adjustedPos);
 
-            // ºôµù Å©±â¸¦ °í·ÁÇÑ À¯È¿¼º Ã¼Å©
+            // ë¹Œë”© í¬ê¸°ë¥¼ ê³ ë ¤í•œ ìœ íš¨ì„± ì²´í¬
             isValidPlacement = grid.IsAreaAvailable(gridPos.x, gridPos.y, buildingSizeX, buildingSizeY);
 
-            // ±×¸®µå ¹üÀ§ ³»¿¡ ÀÖÀ¸¸é ½º³À
+            // ê·¸ë¦¬ë“œ ë²”ìœ„ ë‚´ì— ìˆìœ¼ë©´ ìŠ¤ëƒ…
             if (gridPos.x >= 0 && gridPos.x < grid.width &&
                 gridPos.y >= 0 && gridPos.y < grid.height)
             {
@@ -96,7 +98,7 @@ public class BuildingGhost : MonoBehaviour
             }
             else
             {
-                // grid ¹üÀ§ ¹ÛÀÌ¸é ¸¶¿ì½º À§Ä¡ ±×´ë·Î
+                // grid ë²”ìœ„ ë°–ì´ë©´ ë§ˆìš°ìŠ¤ ìœ„ì¹˜ ê·¸ëŒ€ë¡œ
                 transform.position = mouseWorldPos;
                 isValidPlacement = false;
             }
@@ -108,7 +110,7 @@ public class BuildingGhost : MonoBehaviour
         if (meshRenderer != null)
         {
             MaterialPropertyBlock props = new MaterialPropertyBlock();
-            // URP¿¡¼­´Â _BaseColor »ç¿ë
+            // URPì—ì„œëŠ” _BaseColor ì‚¬ìš©
             props.SetColor("_BaseColor", isValidPlacement ? validColor : invalidColor);
             meshRenderer.SetPropertyBlock(props);
         }
@@ -118,28 +120,15 @@ public class BuildingGhost : MonoBehaviour
     {
         if (grid == null || !isValidPlacement) return;
 
-        // ÇÁ¸®ÆÕÀÌ ¼³Á¤µÇ¾î ÀÖÀ¸¸é ÇÁ¸®ÆÕ »ç¿ë, ¾Æ´Ï¸é ÀÚ±â ÀÚ½Å º¹Á¦
-        GameObject buildingToSpawn = buildingPrefab != null ? buildingPrefab : gameObject;
-
-        // ½ÇÁ¦ ºôµù »ı¼º
-        GameObject newBuilding = Instantiate(buildingToSpawn, transform.position, transform.rotation);
-
-        // BuildingBase ÄÄÆ÷³ÍÆ® °¡Á®¿À±â ¶Ç´Â Ãß°¡
-        BuildingBase buildingBase = newBuilding.GetComponent<BuildingBase>();
-        if (buildingBase == null)
+        if (NetworkManager.Singleton != null)
         {
-            buildingBase = newBuilding.AddComponent<BuildingBase>();
+            Player player = GameInstance.Instance.GetPlayer();
+
+            player.UseResource(price);
         }
 
-        // ºôµù Á¤º¸ ¼³Á¤
-        buildingBase.SetGridInfo(grid, currentGridPos, buildingSizeX, buildingSizeY);
-
-        // ±×¸®µå¿¡ µî·Ï
-        grid.PlaceBuilding(newBuilding, currentGridPos.x, currentGridPos.y, buildingSizeX, buildingSizeY);
-
-        Debug.Log($"Building placed at grid position: {currentGridPos}, size: {buildingSizeX}x{buildingSizeY}");
-
-        // Ghost ¿ÀºêÁ§Æ® Á¦°Å (°è¼Ó ¹èÄ¡ÇÏ·Á¸é ÀÌ ÁÙÀ» ÁÖ¼® Ã³¸®)
+        BuildingManager.Instance.PlaceBuildingServerRpc(BuildingName + "Building", transform.position, currentGridPos, buildingSizeX, buildingSizeY, GameInstance.Instance.GetPlayerID());
+        // Ghost ì˜¤ë¸Œì íŠ¸ ì œê±° (ê³„ì† ë°°ì¹˜í•˜ë ¤ë©´ ì´ ì¤„ì„ ì£¼ì„ ì²˜ë¦¬)
         Destroy(gameObject);
     }
 
@@ -149,7 +138,7 @@ public class BuildingGhost : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // Gizmo·Î ºôµùÀÌ Â÷ÁöÇÒ ¿µ¿ª Ç¥½Ã
+    // Gizmoë¡œ ë¹Œë”©ì´ ì°¨ì§€í•  ì˜ì—­ í‘œì‹œ
     private void OnDrawGizmos()
     {
         if (grid == null) return;

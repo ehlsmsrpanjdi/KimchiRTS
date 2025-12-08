@@ -127,6 +127,6 @@ MonoBehaviour:
     m_Bits: 64
   buildingSizeX: 1
   buildingSizeY: 1
-  buildingPrefab: {fileID: 7884783654505275388, guid: c5bc663715325d94685e282c71fbc2e7, type: 3}
   validColor: {r: 0, g: 1, b: 0, a: 1}
   invalidColor: {r: 1, g: 0, b: 0, a: 1}
+  BuildingName: SmallCube

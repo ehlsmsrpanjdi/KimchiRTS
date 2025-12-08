@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class UIBase : MonoBehaviour
 {
@@ -23,4 +23,8 @@ public class UIBase : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public virtual void NetWorkBinding()
+    {
+        
+    }
 }

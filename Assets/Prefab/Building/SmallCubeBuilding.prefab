@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 709482009492701400}
   - component: {fileID: 725585645613726337}
   - component: {fileID: 2975007617569000795}
-  - component: {fileID: -7526347429805706698}
+  - component: {fileID: 2261229051782678423}
+  - component: {fileID: 8337109491246816534}
   m_Layer: 0
-  m_Name: CubeGhost
+  m_Name: SmallCubeBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.62, y: 0.77, z: 0.49}
-  m_LocalScale: {x: 4, y: 1, z: 4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -109,7 +110,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-7526347429805706698
+--- !u!114 &2261229051782678423
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -118,15 +119,40 @@ MonoBehaviour:
   m_GameObject: {fileID: 7884783654505275388}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d8450f6c1c4b67468862a4cc55cb850, type: 3}
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3253585474
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &8337109491246816534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7884783654505275388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f085380c9ca7649b7f4cb9c6746dc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  buildingName: Building
+  sizeX: 1
+  sizeY: 1
   grid: {fileID: 0}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  buildingSizeX: 4
-  buildingSizeY: 4
-  buildingPrefab: {fileID: 7884783654505275388, guid: e19ac26f987cc824897ada280d89575e, type: 3}
-  validColor: {r: 0, g: 1, b: 0, a: 1}
-  invalidColor: {r: 1, g: 0, b: 0, a: 1}
+  gridPosition: {x: 0, y: 0}
+  blockNavigation: 1
+  carveHeight: 2
+  carveSizeMultiplier: 0.95

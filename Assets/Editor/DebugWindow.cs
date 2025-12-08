@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Steamworks;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 
@@ -45,6 +46,13 @@ public class DebugWindow : EditorWindow
         GUILayout.Label("DebugFloatValue", EditorStyles.boldLabel);
 
         debugFloatValue = EditorGUILayout.FloatField("입력값 : ", debugFloatValue);
+
+
+
+        if (GUILayout.Button("Friend"))
+        {
+            SteamFriends.OpenOverlay("friends");
+        }
     }
 
     void ReplaceAllTMPFonts(TMP_FontAsset newFont)

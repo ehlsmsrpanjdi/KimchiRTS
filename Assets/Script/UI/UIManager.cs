@@ -1,6 +1,5 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class UIManager
@@ -21,7 +20,7 @@ public class UIManager
     Dictionary<Type, UIBase> uiDictionary = new Dictionary<Type, UIBase>();
 
 
-    //¾øÀ¸¸é?  ¾ÈµÊ
+    //ì—†ìœ¼ë©´?  ì•ˆë¨
     public T GetUI<T>() where T : UIBase
     {
         Type uiType = typeof(T);
@@ -30,7 +29,7 @@ public class UIManager
 
         if (baseUI == null)
         {
-            //LogHelper.LogWarrning("Null UI Á¢±Ù" + uiType);
+            //LogHelper.LogWarrning("Null UI ì ‘ê·¼" + uiType);
             return null;
         }
 
@@ -70,10 +69,18 @@ public class UIManager
         if (true == uiDictionary.ContainsKey(_UI.GetType()))
         {
             uiDictionary[uiType] = _UI;
-            Debug.Log("UI ±³Ã¼µÊ ±Ùµ¥ ±³Ã¼ ¾ÈµÇ°Ô ¸¸µé¿¹Á¤ÀÎµ¥ ¿Ö ±³Ã¼µÆÁö");
+            Debug.Log("UI êµì²´ë¨ ê·¼ë° êµì²´ ì•ˆë˜ê²Œ ë§Œë“¤ì˜ˆì •ì¸ë° ì™œ êµì²´ëì§€");
             return;
         }
         uiDictionary.Add(uiType, _UI);
+    }
+
+    public void NetWorkBinding()
+    {
+        foreach(var ui in uiDictionary)
+        {
+            ui.Value.NetWorkBinding();
+        }
     }
 
 }
