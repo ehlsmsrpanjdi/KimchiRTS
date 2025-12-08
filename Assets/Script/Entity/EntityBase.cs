@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EntityBase : NetworkBehaviour
+public class EntityBase : NetworkBehaviour, IPoolObj
 {
     [SerializeField] private float speed = 3.5f;
     [SerializeField] private float attackRange = 2f;
@@ -122,5 +122,13 @@ public class EntityBase : NetworkBehaviour
     private void Attack()
     {
         Debug.Log($"{gameObject.name} attacking {targetPlayer.name}!");
+    }
+
+    public void OnPush()
+    {
+    }
+
+    public void OnPop()
+    {
     }
 }

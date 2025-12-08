@@ -7,7 +7,7 @@ public class NetworkUI : MonoBehaviour
     private void OnGUI()
     {
         float w = 200f, h = 40f;
-        float x = 10f, y = 10f;
+        /*float x = 10f, */float y = 10f;
 
         if (!NetworkManager.Singleton.IsClient && !NetworkManager.Singleton.IsServer)
         {
