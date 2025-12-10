@@ -149,7 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  buildingName: Building
   sizeX: 1
   sizeY: 1
   grid: {fileID: 0}
@@ -160,6 +159,10 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   BuildingOwnerId:
     m_InternalValue: 0
+  currentHP:
+    m_InternalValue: 100
+  maxHP:
+    m_InternalValue: 100
 --- !u!1001 &142938388717735311
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -170,11 +173,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.384
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.589
+      value: -0.325
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.z

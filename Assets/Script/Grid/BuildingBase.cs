@@ -6,7 +6,6 @@ using UnityEngine.AI;
 public class BuildingBase : NetworkBehaviour, ITakeDamage, IPoolObj
 {
     [Header("Building Info")]
-    public string buildingName = "Building";
     public int sizeX = 1;
     public int sizeY = 1;
 
@@ -51,12 +50,12 @@ NetworkVariableWritePermission.Server
             transform.AddComponent<NetworkObject>();
         }
         healthBar = GetComponentInChildren<HealthBar>();
-        healthBar.SetOwner(transform);
     }
 
     protected virtual void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+        healthBar = GetComponentInChildren<HealthBar>();
     }
 
     protected virtual void Start()
@@ -81,6 +80,20 @@ NetworkVariableWritePermission.Server
         if (blockNavigation)
         {
             SetupNavMeshObstacle();
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // 여기서 등록! (NetworkVariable 준비된 후)
+        currentHP.OnValueChanged += OnHealthChanged;
+
+        // 초기 체력바 설정
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(currentHP.Value / maxHP.Value);
         }
     }
 
@@ -127,20 +140,20 @@ NetworkVariableWritePermission.Server
         }
     }
 
-    // 네비게이션 차단 활성화/비활성화
-    public void SetNavigationBlocking(bool block)
-    {
-        blockNavigation = block;
+    //// 네비게이션 차단 활성화/비활성화
+    //public void SetNavigationBlocking(bool block)
+    //{
+    //    blockNavigation = block;
 
-        if (block && navMeshObstacle == null)
-        {
-            SetupNavMeshObstacle();
-        }
-        else if (!block && navMeshObstacle != null)
-        {
-            RemoveNavMeshObstacle();
-        }
-    }
+    //    if (block && navMeshObstacle == null)
+    //    {
+    //        SetupNavMeshObstacle();
+    //    }
+    //    else if (!block && navMeshObstacle != null)
+    //    {
+    //        RemoveNavMeshObstacle();
+    //    }
+    //}
 
     // NavMeshObstacle 제거
     void RemoveNavMeshObstacle()
@@ -149,7 +162,6 @@ NetworkVariableWritePermission.Server
         {
             Destroy(navMeshObstacle);
             navMeshObstacle = null;
-            Debug.Log($"NavMeshObstacle removed from {buildingName}");
         }
     }
 
@@ -159,17 +171,20 @@ NetworkVariableWritePermission.Server
         if (grid != null)
         {
             grid.RemoveBuilding(gridPosition.x, gridPosition.y, sizeX, sizeY);
-            Debug.Log($"{buildingName} removed from grid position: {gridPosition}");
         }
 
+        RemoveNavMeshObstacle();
+
         // NavMeshObstacle도 함께 제거됨
-        Destroy(gameObject);
+        PoolManager.Instance.Push(gameObject);
     }
+
 
 
 
     protected new void OnDestroy()
     {
+        LogHelper.LogWarrning("이거 호출되면 안되는디");
         // 오브젝트가 파괴될 때 그리드에서도 제거
         if (grid != null)
         {
@@ -227,18 +242,36 @@ NetworkVariableWritePermission.Server
         }
     }
 
+    private void OnHealthChanged(float previousValue, float newValue)
+    {
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(newValue / maxHP.Value);
+        }
+        if(newValue <= 0)
+        {
+            RemoveBuilding();
+        }
+    }
+
+
     public virtual bool TakeDamage(float _Amount)
     {
         if (!IsServer) return false;  // 서버에서만 처리
 
         currentHP.Value -= _Amount;
 
-        if (currentHP.Value <= 0)
+
+        if (currentHP.Value < 0)
         {
             currentHP.Value = 0;
-            RemoveBuilding();
+            return true;
         }
-        return true;
+
+        else
+        {
+            return false;
+        }
     }
 
     public virtual bool HealHP(float _Amount)
@@ -257,6 +290,7 @@ NetworkVariableWritePermission.Server
 
     public virtual void OnPush()
     {
+        RemoveBuilding();
     }
 
     public virtual void OnPop()

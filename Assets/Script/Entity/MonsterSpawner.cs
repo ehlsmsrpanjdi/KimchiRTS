@@ -9,7 +9,7 @@ public class MonsterSpawner : MonoBehaviour
     {
         if (Time.frameCount % 60 == 0 && NetworkManager.Singleton.IsServer == true)
         {
-            GameObject obj = PoolManager.Instance.Pop("EntityBase");
+            GameObject obj = PoolManager.Instance.Pop("EntityBase", transform.position);
 
             //obj.transform.position = transform.position;
 

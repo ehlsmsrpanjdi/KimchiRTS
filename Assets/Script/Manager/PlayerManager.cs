@@ -21,6 +21,7 @@ public class PlayerManager
     public void AddPlayer(Player _Player)
     {
         playerList.Add(_Player);
+        LogHelper.Log("프레이어젒고");
     }
 
     public void RemovePlayer(Player _Player)

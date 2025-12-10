@@ -22,7 +22,7 @@ public class DebugManager : MonoBehaviour
 
     public void CreateGhost()
     {
-        PoolManager.Instance.Pop("CubeGhost");
+        PoolManager.Instance.Pop("WallGhost", Vector3.zero);
     }
 
 }

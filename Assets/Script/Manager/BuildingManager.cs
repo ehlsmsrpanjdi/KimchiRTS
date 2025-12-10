@@ -14,12 +14,11 @@ public class BuildingManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void PlaceBuildingServerRpc(string buildingName, Vector3 worldPos, Vector2Int currentGridPos, int width, int height, ulong playerID)
     {
-        var buildingToSpawn = PoolManager.Instance.Pop(buildingName);
+        var buildingToSpawn = PoolManager.Instance.Pop(buildingName, worldPos);
 
-        buildingToSpawn.transform.position = worldPos;
         buildingToSpawn.transform.rotation = Quaternion.identity;
 
-        buildingToSpawn.GetComponent<NetworkObject>().Spawn();
+        //buildingToSpawn.GetComponent<NetworkObject>().Spawn();
 
         // BuildingBase 컴포넌트 가져오기 또는 추가
         BuildingBase buildingBase = buildingToSpawn.GetComponent<BuildingBase>();

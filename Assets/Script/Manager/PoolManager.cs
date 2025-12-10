@@ -38,7 +38,7 @@ public class PoolManager
     // -----------------------------------------------------
     // POP
     // -----------------------------------------------------
-    public GameObject Pop(string key)
+    public GameObject Pop(string key, Vector3 _position)
     {
         // 풀에 이 key가 없다면 초기화
         if (!poolDictionary.ContainsKey(key))
@@ -58,6 +58,7 @@ public class PoolManager
             GameObject newObj = GameObject.Instantiate(prefab);
             newObj.name = key; // 풀링 키 유지
             newObj.GetComponent<IPoolObj>()?.OnPop();
+            newObj.transform.position = _position;
 
             var spawnedNetObj = newObj.GetComponent<NetworkObject>();
             if (spawnedNetObj != null && !spawnedNetObj.IsSpawned)

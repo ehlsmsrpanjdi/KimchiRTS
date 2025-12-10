@@ -47,13 +47,17 @@ public class FollowCamera : MonoBehaviour
 
     private void Update()
     {
-        EdgeScroll();
         ZoomCamera();
 
         if (useKeyboardScroll)
         {
             KeyboardScroll();
         }
+
+        return;
+        EdgeScroll();
+
+
     }
 
     private void EdgeScroll()
