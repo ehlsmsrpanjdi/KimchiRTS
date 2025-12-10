@@ -163,6 +163,7 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
+  - component: {fileID: 330585548}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -288,6 +289,29 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!114 &330585548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08c078ac3bc5b13409eab35780325d1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  edgeScrollSize: 20
+  scrollSpeed: 30
+  minX: -50
+  maxX: 50
+  minZ: -50
+  maxZ: 50
+  zoomSpeed: 10
+  minZoom: 10
+  maxZoom: 50
+  currentZoom: 30
+  useKeyboardScroll: 1
 --- !u!1 &388425476
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,7 +328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &388425477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -922,8 +946,8 @@ Transform:
   m_GameObject: {fileID: 1161479452}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.9240305, y: 4.269652, z: -0.3646225}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 492470698}
@@ -958,7 +982,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 40ba3fe4d110c7642b32485450300533, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 76eadd6fdc105594a89415a6830cfa96, type: 2}
   m_BuildHeightMesh: 0
 --- !u!114 &1161479458
 MonoBehaviour:
@@ -972,8 +996,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f76033aba900f04cb0d1aff2c962aca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 20
-  height: 20
+  width: 40
+  height: 40
   cellSize: 1
   gridColor: {r: 0, g: 1, b: 0, a: 1}
   drawGrid: 1

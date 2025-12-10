@@ -21,11 +21,20 @@ public class BuildingGhost : MonoBehaviour
 
     public int price = 10;
 
+    ulong playerID;
+    Player ownerPlayer;
+
     [SerializeField] string BuildingName;
 
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+    }
+
+    private void Start()
+    {
+        playerID = GameInstance.Instance.GetPlayerID();
+        ownerPlayer = GameInstance.Instance.GetPlayer(playerID);
     }
 
     void Update()
@@ -94,12 +103,12 @@ public class BuildingGhost : MonoBehaviour
             {
                 currentGridPos = gridPos;
                 Vector3 snapped = grid.GridToWorldWithSize(gridPos.x, gridPos.y, buildingSizeX, buildingSizeY);
-                transform.position = snapped;
+                transform.position = snapped + new Vector3(0, transform.localScale.y / 2, 0);
             }
             else
             {
                 // grid 범위 밖이면 마우스 위치 그대로
-                transform.position = mouseWorldPos;
+                transform.position = mouseWorldPos + new Vector3(0, transform.localScale.y / 2, 0);
                 isValidPlacement = false;
             }
         }
@@ -112,6 +121,14 @@ public class BuildingGhost : MonoBehaviour
             MaterialPropertyBlock props = new MaterialPropertyBlock();
             // URP에서는 _BaseColor 사용
             props.SetColor("_BaseColor", isValidPlacement ? validColor : invalidColor);
+
+            float playerDistance = Vector3.Distance(transform.position, ownerPlayer.transform.position);
+
+            if (playerDistance > 10)
+            {
+                props.SetColor("_BaseColor", invalidColor);
+            }
+
             meshRenderer.SetPropertyBlock(props);
         }
     }
@@ -119,6 +136,15 @@ public class BuildingGhost : MonoBehaviour
     void PlaceBuilding()
     {
         if (grid == null || !isValidPlacement) return;
+
+        float playerDistance = Vector3.Distance(transform.position, ownerPlayer.transform.position);
+
+        LogHelper.Log(playerDistance.ToString());
+
+        if (playerDistance > 10)
+        {
+            return;
+        }
 
         if (NetworkManager.Singleton != null)
         {

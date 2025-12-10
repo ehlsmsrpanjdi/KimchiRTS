@@ -14,8 +14,11 @@ public class BuildingManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void PlaceBuildingServerRpc(string buildingName, Vector3 worldPos, Vector2Int currentGridPos, int width, int height, ulong playerID)
     {
-        var prefab = AssetManager.Instance.GetByName(buildingName);
-        var buildingToSpawn = Instantiate(prefab, worldPos, Quaternion.identity);
+        var buildingToSpawn = PoolManager.Instance.Pop(buildingName);
+
+        buildingToSpawn.transform.position = worldPos;
+        buildingToSpawn.transform.rotation = Quaternion.identity;
+
         buildingToSpawn.GetComponent<NetworkObject>().Spawn();
 
         // BuildingBase 컴포넌트 가져오기 또는 추가

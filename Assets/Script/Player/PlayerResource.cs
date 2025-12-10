@@ -38,7 +38,7 @@ public class PlayerResource : NetworkBehaviour
         if (IsOwner)
         {
             OnChangeResource?.Invoke(newValue);
-            LogHelper.Log($"자원: {previousValue} → {newValue}");
+            //LogHelper.Log($"자원: {previousValue} → {newValue}");
         }
     }
 

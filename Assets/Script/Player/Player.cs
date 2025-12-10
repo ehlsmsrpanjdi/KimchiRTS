@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
-public class Player : NetworkBehaviour
+public class Player : NetworkBehaviour, ITakeDamage
 {
     PlayerInput input;
     [SerializeField] InputActionAsset inputActions;
@@ -23,7 +23,6 @@ public class Player : NetworkBehaviour
         inputActions = Resources.Load<InputActionAsset>("InputSystem_Actions");
         input = GetComponent<PlayerInput>();
         mover = GetComponent<PlayerMover>();
-        cam = FindAnyObjectByType<Camera>();
         groundMask = LayerHelper.Instance.GetLayerToInt(LayerHelper.GridLayer);
         playerResource = GetComponent<PlayerResource>();
     }
@@ -43,15 +42,17 @@ public class Player : NetworkBehaviour
                 PlayerNotifications.InvokeUnityEvents;        // 권장
 
             UIManager.Instance.NetWorkBinding();
+
+            if (cam == null)
+            {
+                cam = FollowCamera.Instance.GetComponent<Camera>();
+            }
         }
     }
 
     private void Awake()
     {
-        if (cam == null)
-        {
-            cam = FindAnyObjectByType<Camera>();
-        }
+
         PlayerManager.Instance.AddPlayer(this);
     }
 
@@ -96,5 +97,21 @@ public class Player : NetworkBehaviour
     public bool UseResource(int res)
     {
         return playerResource.TrySpendResource(res);
+    }
+
+    private void OnDisable()
+    {
+        PlayerManager.Instance.RemovePlayer(this);
+        GameInstance.Instance.RemovePlayer(OwnerClientId);
+    }
+
+    public bool TakeDamage(float _Amount)
+    {
+        return false;
+    }
+
+    public bool HealHP(float _Amount)
+    {
+        return false;
     }
 }

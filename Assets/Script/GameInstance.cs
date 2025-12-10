@@ -31,6 +31,11 @@ public class GameInstance
         playerDic.Add(playerID, _player);
     }
 
+    public void RemovePlayer(ulong playerID)
+    {
+        playerDic.Remove(playerID);
+    }
+
     public ulong GetPlayerID()
     {
         return playerID;

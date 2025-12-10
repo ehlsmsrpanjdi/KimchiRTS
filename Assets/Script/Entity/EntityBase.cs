@@ -67,6 +67,8 @@ public class EntityBase : NetworkBehaviour, IPoolObj
         // Server에서만 실행
         if (!IsServer) return;
 
+        List<WallBuilding> buildings = BattleGameMode.Instance.GetWalls();
+
         // 타겟 갱신 (1초마다 또는 타겟 없을 때만)
         if (targetPlayer == null || Time.frameCount % 60 == 0)
         {

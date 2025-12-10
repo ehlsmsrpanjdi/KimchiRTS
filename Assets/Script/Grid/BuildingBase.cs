@@ -3,7 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BuildingBase : NetworkBehaviour
+public class BuildingBase : NetworkBehaviour, ITakeDamage, IPoolObj
 {
     [Header("Building Info")]
     public string buildingName = "Building";
@@ -23,11 +23,25 @@ public class BuildingBase : NetworkBehaviour
     private MeshRenderer meshRenderer;
     private NavMeshObstacle navMeshObstacle;
 
+    [SerializeField] HealthBar healthBar;
+
     public NetworkVariable<ulong> BuildingOwnerId = new NetworkVariable<ulong>(
         default,
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
+
+    public NetworkVariable<float> currentHP = new NetworkVariable<float>(
+    100,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server
+);
+
+    public NetworkVariable<float> maxHP = new NetworkVariable<float>(
+100,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server
+);
 
     private void Reset()
     {
@@ -36,6 +50,8 @@ public class BuildingBase : NetworkBehaviour
         {
             transform.AddComponent<NetworkObject>();
         }
+        healthBar = GetComponentInChildren<HealthBar>();
+        healthBar.SetOwner(transform);
     }
 
     protected virtual void Awake()
@@ -50,7 +66,7 @@ public class BuildingBase : NetworkBehaviour
 
     public void Initialize()
     {
-        LogHelper.Log($"{buildingName} initialized at grid position: {gridPosition}");
+        //LogHelper.Log($"{buildingName} initialized at grid position: {gridPosition}");
 
         grid = GridArea.Instance;
         // 색상을 원래대로 복원
@@ -101,7 +117,7 @@ public class BuildingBase : NetworkBehaviour
             //    sizeY * grid.cellSize * carveSizeMultiplier
             //);
 
-            Debug.Log($"NavMeshObstacle set to grid size: {navMeshObstacle.size} (Grid: {sizeX}x{sizeY}, CellSize: {grid.cellSize})");
+            //Debug.Log($"NavMeshObstacle set to grid size: {navMeshObstacle.size} (Grid: {sizeX}x{sizeY}, CellSize: {grid.cellSize})");
         }
         else
         {
@@ -209,5 +225,41 @@ public class BuildingBase : NetworkBehaviour
                 Gizmos.DrawCube(cellCenter, cellSize);
             }
         }
+    }
+
+    public virtual bool TakeDamage(float _Amount)
+    {
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value -= _Amount;
+
+        if (currentHP.Value <= 0)
+        {
+            currentHP.Value = 0;
+            RemoveBuilding();
+        }
+        return true;
+    }
+
+    public virtual bool HealHP(float _Amount)
+    {
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value += _Amount;
+
+        if (currentHP.Value > maxHP.Value)
+        {
+            currentHP.Value = maxHP.Value;
+        }
+
+        return true;
+    }
+
+    public virtual void OnPush()
+    {
+    }
+
+    public virtual void OnPop()
+    {
     }
 }

@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Entity
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2905960da747c44cb4c796eabc70183
+    m_Address: Assets/Prefab/UI
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - UI
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e77195e44a4cf1f4ea331352d4441a5f
     m_Address: Assets/Prefab/Building
     m_ReadOnly: 0

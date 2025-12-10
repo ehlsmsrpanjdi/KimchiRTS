@@ -23,6 +23,11 @@ public class PlayerManager
         playerList.Add(_Player);
     }
 
+    public void RemovePlayer(Player _Player)
+    {
+        playerList.Remove(_Player);
+    }
+
     public List<Player> GetPlayers()
     {
         return playerList;
