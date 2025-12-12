@@ -37,10 +37,6 @@ public class DebugWindow : EditorWindow
             ReplaceAllTMPFonts(targetFont);
         }
 
-        if (GUILayout.Button("CreateGhost"))
-        {
-            DebugManager.Instance.CreateGhost();
-        }
 
         GUILayout.Space(10);
         GUILayout.Label("DebugFloatValue", EditorStyles.boldLabel);

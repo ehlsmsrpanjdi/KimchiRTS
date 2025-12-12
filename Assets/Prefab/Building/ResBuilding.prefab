@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3605333442712736911}
   - component: {fileID: 2999200775280846911}
   m_Layer: 0
-  m_Name: CubeBuilding
+  m_Name: ResBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: -7526347429805706698}
   m_Layer: 0
-  m_Name: CubeGhost
+  m_Name: ResGhost
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,4 +129,5 @@ MonoBehaviour:
   buildingSizeY: 4
   validColor: {r: 0, g: 1, b: 0, a: 1}
   invalidColor: {r: 1, g: 0, b: 0, a: 1}
-  BuildingName: Cube
+  price: 10
+  BuildingName: Res

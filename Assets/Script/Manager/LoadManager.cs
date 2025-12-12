@@ -34,7 +34,7 @@ public static class ResourceString
 
     #region UI
 
-    public const string ResBuildingName = "Building";
+    public const string BuildCardName = "BuildingCard";
 
     #endregion
 

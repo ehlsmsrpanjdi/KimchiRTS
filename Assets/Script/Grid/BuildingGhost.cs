@@ -164,6 +164,11 @@ public class BuildingGhost : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void OnDestroy()
+    {
+        UIManager.Instance.GetUI<BuildSystemUI>().buildingSystemToggleUI.OnToggle();
+    }
+
     // Gizmo로 빌딩이 차지할 영역 표시
     private void OnDrawGizmos()
     {
