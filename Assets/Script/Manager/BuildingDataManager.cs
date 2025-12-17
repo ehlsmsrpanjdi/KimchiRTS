@@ -34,7 +34,7 @@ public class BuildingDataManager
 
     void Fun_1()
     {
-        PoolManager.Instance.Pop("WallGhost", Vector3.zero);
+        PoolManager.Instance.Pop("BattleGhost", Vector3.zero);
     }
 
     void Fun_2()

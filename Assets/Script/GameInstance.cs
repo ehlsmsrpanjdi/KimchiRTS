@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class GameInstance
 {
@@ -16,7 +17,7 @@ public class GameInstance
     }
 
     private ulong playerID = 0;
-
+    public Action onPlayerAdd;
 
     public Dictionary<ulong, Player> playerDic = new Dictionary<ulong, Player>();
 
@@ -29,6 +30,7 @@ public class GameInstance
     public void AddPlayer(ulong playerID, Player _player)
     {
         playerDic.Add(playerID, _player);
+        onPlayerAdd?.Invoke();
     }
 
     public void RemovePlayer(ulong playerID)
@@ -49,6 +51,11 @@ public class GameInstance
     public Player GetPlayer(ulong _playerID)
     {
         return playerDic[_playerID];
+    }
+
+    public int GetPlayerCount()
+    {
+        return (playerDic.Count);
     }
 
 }

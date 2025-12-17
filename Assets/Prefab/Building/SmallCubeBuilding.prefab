@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: 2261229051782678423}
   - component: {fileID: 8337109491246816534}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SmallCubeBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.384
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.y

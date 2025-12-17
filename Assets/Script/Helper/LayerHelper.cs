@@ -21,4 +21,10 @@ public class LayerHelper
     {
         return 1 << LayerMask.NameToLayer(_str);
     }
+
+    public string GetObjectLayer(GameObject _obj)
+    {
+        int layerIndex = _obj.layer;
+        return LayerMask.LayerToName(_obj.layer);
+    }
 }

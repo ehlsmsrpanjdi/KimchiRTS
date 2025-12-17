@@ -5,6 +5,12 @@ using UnityEngine;
 public class MonsterSpawner : MonoBehaviour
 {
 
+    private void Awake()
+    {
+        MonsterSpawnManager.Instance.AddSpawner(this);
+        gameObject.SetActive(false);
+    }
+
     private void Update()
     {
         if (Time.frameCount % 60 == 0 && NetworkManager.Singleton.IsServer == true)

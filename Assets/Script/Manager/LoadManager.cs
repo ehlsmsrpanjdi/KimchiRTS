@@ -21,6 +21,7 @@ public class LoadManager
         await AssetManager.Instance.LoadByLabelAsync("Entity");
         await AssetManager.Instance.LoadByLabelAsync("Building");
         await AssetManager.Instance.LoadByLabelAsync("UI");
+        await AssetManager.Instance.LoadByLabelAsync("Bullet");
     }
 }
 
@@ -30,6 +31,7 @@ public static class ResourceString
     public const string LabelUI = "UI";
     public const string LabelEntity = "Entity";
     public const string LabelBuilding = "Building";
+    public const string LabelBullet = "Bullet";
 
 
     #region UI
@@ -38,4 +40,10 @@ public static class ResourceString
 
     #endregion
 
+
+    #region Bullet
+
+    public const string TestBullet = "TestBullet";
+
+    #endregion
 }

@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EntityBase : NetworkBehaviour, IPoolObj
+public class EntityBase : NetworkBehaviour, IPoolObj, ITakeDamage
 {
     [SerializeField] private float speed = 3.5f;
     [SerializeField] private float attackRange = 2f;
@@ -23,6 +23,20 @@ public class EntityBase : NetworkBehaviour, IPoolObj
     private bool isTrackingPlayer;
 
     private const float TARGET_VALIDITY_CHECK_INTERVAL = 10f;
+
+    [SerializeField] HealthBar healthBar;
+
+    public NetworkVariable<float> currentHP = new NetworkVariable<float>(
+100,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server
+);
+
+    public NetworkVariable<float> maxHP = new NetworkVariable<float>(
+100,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server
+);
 
     private void Reset()
     {
@@ -42,6 +56,7 @@ public class EntityBase : NetworkBehaviour, IPoolObj
         {
             agent = transform.AddComponent<NavMeshAgent>();
         }
+        healthBar = GetComponentInChildren<HealthBar>();
     }
 
     private void Awake()
@@ -54,6 +69,15 @@ public class EntityBase : NetworkBehaviour, IPoolObj
     {
         base.OnNetworkSpawn();
         agent.speed = speed;
+
+        healthBar.UpdateHealthPercent(1);
+
+        currentHP.OnValueChanged += OnHealthChanged;
+
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(currentHP.Value / maxHP.Value);
+        }
     }
 
     private void Update()
@@ -247,5 +271,51 @@ public class EntityBase : NetworkBehaviour, IPoolObj
     {
         lastAttackTime = 0;
         lastTargetValidityCheckTime = 0;
+    }
+
+    private void OnHealthChanged(float previousValue, float newValue)
+    {
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(newValue / maxHP.Value);
+        }
+        if (newValue <= 0)
+        {
+            PoolManager.Instance.Push(gameObject);
+        }
+    }
+
+
+    public virtual bool TakeDamage(float _Amount)
+    {
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value -= _Amount;
+
+
+        if (currentHP.Value < 0)
+        {
+            currentHP.Value = 0;
+            return true;
+        }
+
+        else
+        {
+            return false;
+        }
+    }
+
+    public virtual bool HealHP(float _Amount)
+    {
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value += _Amount;
+
+        if (currentHP.Value > maxHP.Value)
+        {
+            currentHP.Value = maxHP.Value;
+        }
+
+        return true;
     }
 }

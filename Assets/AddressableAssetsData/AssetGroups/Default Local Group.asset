@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 435c6b7daefd3ea4392416bd38aaee79
   m_SerializeEntries:
+  - m_GUID: 05f38326fb759bc4783738e56506207a
+    m_Address: Assets/Prefab/Bullet
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Bullet
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 61fa62bb71630cf4bbcd8d8ccc120ee8
     m_Address: Assets/Prefab/Entity
     m_ReadOnly: 0

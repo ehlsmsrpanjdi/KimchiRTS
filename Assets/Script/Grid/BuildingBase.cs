@@ -42,7 +42,7 @@ NetworkVariableReadPermission.Everyone,
 NetworkVariableWritePermission.Server
 );
 
-    private void Reset()
+    protected virtual void Reset()
     {
         NetworkObject net = GetComponent<NetworkObject>();
         if (net == null)
@@ -50,6 +50,9 @@ NetworkVariableWritePermission.Server
             transform.AddComponent<NetworkObject>();
         }
         healthBar = GetComponentInChildren<HealthBar>();
+        int obstacleLayer = LayerHelper.Instance.GetLayerToInt("Obstacle");
+
+        gameObject.layer = obstacleLayer;
     }
 
     protected virtual void Awake()
@@ -123,14 +126,6 @@ NetworkVariableWritePermission.Server
             navMeshObstacle.center = Vector3.zero;
 
             navMeshObstacle.size = Vector3.one;
-            // size는 그리드 크기에 정확히 맞춤
-            //navMeshObstacle.size = new Vector3(
-            //    sizeX * grid.cellSize * carveSizeMultiplier,
-            //    carveHeight,
-            //    sizeY * grid.cellSize * carveSizeMultiplier
-            //);
-
-            //Debug.Log($"NavMeshObstacle set to grid size: {navMeshObstacle.size} (Grid: {sizeX}x{sizeY}, CellSize: {grid.cellSize})");
         }
         else
         {
@@ -140,20 +135,7 @@ NetworkVariableWritePermission.Server
         }
     }
 
-    //// 네비게이션 차단 활성화/비활성화
-    //public void SetNavigationBlocking(bool block)
-    //{
-    //    blockNavigation = block;
 
-    //    if (block && navMeshObstacle == null)
-    //    {
-    //        SetupNavMeshObstacle();
-    //    }
-    //    else if (!block && navMeshObstacle != null)
-    //    {
-    //        RemoveNavMeshObstacle();
-    //    }
-    //}
 
     // NavMeshObstacle 제거
     void RemoveNavMeshObstacle()
@@ -179,7 +161,16 @@ NetworkVariableWritePermission.Server
         PoolManager.Instance.Push(gameObject);
     }
 
+    public virtual void OnSpecialEffect()
+    {
 
+
+    }
+
+    public virtual void OffSpecialEffect()
+    {
+
+    }
 
 
     protected new void OnDestroy()
@@ -195,52 +186,6 @@ NetworkVariableWritePermission.Server
         RemoveNavMeshObstacle();
     }
 
-    // 디버그용 Gizmo
-    private void OnDrawGizmosSelected()
-    {
-        if (grid == null) return;
-
-        // 차지하는 그리드 영역
-        Gizmos.color = Color.yellow;
-        Vector3 size = new Vector3(
-            sizeX * grid.cellSize,
-            0.2f,
-            sizeY * grid.cellSize
-        );
-        Gizmos.DrawWireCube(transform.position, size);
-
-        // NavMesh Carving 영역 (실제 obstacle 크기)
-        if (blockNavigation && navMeshObstacle != null)
-        {
-            Gizmos.color = Color.red;
-            Vector3 navSize = navMeshObstacle.size;
-            Vector3 navCenter = transform.TransformPoint(navMeshObstacle.center);
-            Gizmos.DrawWireCube(navCenter, navSize);
-        }
-        else if (blockNavigation)
-        {
-            // obstacle이 아직 생성 안됐을 때 예상 크기
-            Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
-            Vector3 navSize = new Vector3(
-                sizeX * grid.cellSize * carveSizeMultiplier,
-                carveHeight,
-                sizeY * grid.cellSize * carveSizeMultiplier
-            );
-            Gizmos.DrawWireCube(transform.position, navSize);
-        }
-
-        // 차지하는 그리드 칸 표시
-        Gizmos.color = new Color(1f, 1f, 0f, 0.3f);
-        for (int x = 0; x < sizeX; x++)
-        {
-            for (int y = 0; y < sizeY; y++)
-            {
-                Vector3 cellCenter = grid.GridToWorld(gridPosition.x + x, gridPosition.y + y);
-                Vector3 cellSize = new Vector3(grid.cellSize * 0.9f, 0.1f, grid.cellSize * 0.9f);
-                Gizmos.DrawCube(cellCenter, cellSize);
-            }
-        }
-    }
 
     private void OnHealthChanged(float previousValue, float newValue)
     {
@@ -248,7 +193,7 @@ NetworkVariableWritePermission.Server
         {
             healthBar.UpdateHealthPercent(newValue / maxHP.Value);
         }
-        if(newValue <= 0)
+        if (newValue <= 0)
         {
             RemoveBuilding();
         }

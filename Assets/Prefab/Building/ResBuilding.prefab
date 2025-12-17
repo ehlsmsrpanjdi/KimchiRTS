@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: 3605333442712736911}
   - component: {fileID: 2999200775280846911}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ResBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -173,7 +173,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.384
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -181,7 +181,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.555
+      value: -0.609
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalRotation.w

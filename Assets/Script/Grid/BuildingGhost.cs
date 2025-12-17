@@ -1,4 +1,5 @@
 ﻿using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingGhost : MonoBehaviour
@@ -29,6 +30,17 @@ public class BuildingGhost : MonoBehaviour
     private void Awake()
     {
         meshRenderer = GetComponentInChildren<MeshRenderer>();
+    }
+
+    private void Reset()
+    {
+        if (GetComponent<Rigidbody>() == null)
+        {
+            Rigidbody rb = transform.AddComponent<Rigidbody>();
+            rb.useGravity = false;
+            rb.isKinematic = false;
+
+        }
     }
 
     private void Start()
@@ -124,9 +136,10 @@ public class BuildingGhost : MonoBehaviour
 
             float playerDistance = Vector3.Distance(transform.position, ownerPlayer.transform.position);
 
-            if (playerDistance > 10)
+            if (playerDistance > 10 || collCount > 0)
             {
                 props.SetColor("_BaseColor", invalidColor);
+                isValidPlacement = false;
             }
 
             meshRenderer.SetPropertyBlock(props);
@@ -162,6 +175,24 @@ public class BuildingGhost : MonoBehaviour
     {
         Debug.Log("Building placement cancelled");
         Destroy(gameObject);
+    }
+
+    int collCount = 0;
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
+        {
+            ++collCount;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
+        {
+            --collCount;
+        }
     }
 
     private void OnDestroy()

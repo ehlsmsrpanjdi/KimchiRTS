@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: -5851778914619172823}
   - component: {fileID: 3900899747116765101}
-  m_Layer: 0
+  m_Layer: 1
   m_Name: WallBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ MonoBehaviour:
   blockNavigation: 1
   carveHeight: 2
   carveSizeMultiplier: 0.95
-  healthBar: {fileID: 0}
+  healthBar: {fileID: 2260945846010686300}
   BuildingOwnerId:
     m_InternalValue: 0
   currentHP:
@@ -173,7 +173,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -220,6 +220,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
+--- !u!114 &2260945846010686300 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3917700135586020411, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}
+  m_PrefabInstance: {fileID: 2971823527063590759}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d90e2e6f3bf6db648896b1761f28c1b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8776866953304372656 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5833208521509069527, guid: 83f6f8103271a0b47bdf9e0ada61ddbb, type: 3}

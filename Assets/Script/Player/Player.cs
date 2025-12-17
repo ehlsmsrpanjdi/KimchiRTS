@@ -18,6 +18,20 @@ public class Player : NetworkBehaviour, ITakeDamage
 
     public ulong playerID;
 
+    public NetworkVariable<float> currentHP = new NetworkVariable<float>(
+100,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server
+);
+
+    public NetworkVariable<float> maxHP = new NetworkVariable<float>(
+100,
+NetworkVariableReadPermission.Everyone,
+NetworkVariableWritePermission.Server
+);
+
+    [SerializeField] HealthBar healthBar;
+
     private void Reset()
     {
         inputActions = Resources.Load<InputActionAsset>("InputSystem_Actions");
@@ -25,11 +39,18 @@ public class Player : NetworkBehaviour, ITakeDamage
         mover = GetComponent<PlayerMover>();
         groundMask = LayerHelper.Instance.GetLayerToInt(LayerHelper.GridLayer);
         playerResource = GetComponent<PlayerResource>();
+        healthBar = GetComponentInChildren<HealthBar>();
     }
 
     public override void OnNetworkSpawn()
     {
         GameInstance.Instance.AddPlayer(OwnerClientId, this);
+        currentHP.OnValueChanged += OnHealthChanged;
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(currentHP.Value / maxHP.Value);
+        }
+
         if (IsOwner)
         {
             GameInstance.Instance.SetPlayerID(OwnerClientId);
@@ -105,13 +126,48 @@ public class Player : NetworkBehaviour, ITakeDamage
         GameInstance.Instance.RemovePlayer(OwnerClientId);
     }
 
+    private void OnHealthChanged(float previousValue, float newValue)
+    {
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(newValue / maxHP.Value);
+        }
+        if (newValue <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public bool TakeDamage(float _Amount)
     {
-        return false;
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value -= _Amount;
+
+
+        if (currentHP.Value < 0)
+        {
+            currentHP.Value = 0;
+            return true;
+        }
+
+        else
+        {
+            return false;
+        }
     }
 
     public bool HealHP(float _Amount)
     {
-        return false;
+        if (!IsServer) return false;  // 서버에서만 처리
+
+        currentHP.Value += _Amount;
+
+        if (currentHP.Value > maxHP.Value)
+        {
+            currentHP.Value = maxHP.Value;
+        }
+
+        return true;
     }
 }
