@@ -48,9 +48,9 @@ public class BulletBase : NetworkBehaviour, IPoolObj
 
     public virtual void MoveFunction()
     {
-        if (target == null || target.gameObject == null)
+        if (target == null || target.isActiveAndEnabled == false)
         {
-            // 타겟이 없으면 직진
+            target = null;
             transform.position += transform.forward * moveSpeed * Time.deltaTime;
             return;
         }

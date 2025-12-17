@@ -45,9 +45,13 @@ public class GameUI : UIBase
         WaveUI.text = $"Wave : {Count} / 20";
     }
 
-    public void SetRemainWaveTime(string _str)
+    public void SetRemainWaveTime(float prev, float next)
     {
-        NextWaveTimeUI.text = _str;
+        int currentTime = (int)MonsterSpawnManager.Instance.GetCurrentTimerValue();
+        int min = currentTime / 60;
+        int second = currentTime % 60;
+
+        NextWaveTimeUI.text = $"{min} : {second}";
     }
 
     void resNet()

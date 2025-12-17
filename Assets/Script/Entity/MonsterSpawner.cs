@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MonsterSpawner : MonoBehaviour
 {
+    float currentTime;
+    float SpawnTime = 5;
+
 
     private void Awake()
     {
@@ -13,7 +16,15 @@ public class MonsterSpawner : MonoBehaviour
 
     private void Update()
     {
-        if (Time.frameCount % 60 == 0 && NetworkManager.Singleton.IsServer == true)
+        currentTime += Time.deltaTime;
+
+        if (currentTime < SpawnTime)
+        {
+            return;
+        }
+
+        currentTime -= SpawnTime;
+        if (NetworkManager.Singleton.IsServer == true)
         {
             GameObject obj = PoolManager.Instance.Pop("EntityBase", transform.position);
 
@@ -28,8 +39,6 @@ public class MonsterSpawner : MonoBehaviour
                     transform.localScale
                 );
             }
-
-            LogHelper.Log("스폰");
         }
     }
 }

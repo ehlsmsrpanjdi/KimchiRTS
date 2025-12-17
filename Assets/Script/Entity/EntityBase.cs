@@ -269,6 +269,10 @@ NetworkVariableWritePermission.Server
 
     public void OnPop()
     {
+        if(!IsServer) return;
+
+        currentHP.Value = maxHP.Value;
+        healthBar.UpdateHealthPercent(1);
         lastAttackTime = 0;
         lastTargetValidityCheckTime = 0;
     }

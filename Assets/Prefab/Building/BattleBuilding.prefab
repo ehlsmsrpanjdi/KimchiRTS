@@ -165,6 +165,8 @@ MonoBehaviour:
   maxHP:
     m_InternalValue: 100
   detector: {fileID: 4676942502542681984}
+  attackInterval: 2
+  checkInterval: 0.5
 --- !u!1 &8195302675484739118
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,7 +178,7 @@ GameObject:
   - component: {fileID: 9078676812078590557}
   - component: {fileID: 6153948512466079521}
   - component: {fileID: 4676942502542681984}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: BattleRangeDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}

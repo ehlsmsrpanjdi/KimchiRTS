@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+﻿using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -53,6 +54,9 @@ public class BuildingGhost : MonoBehaviour
     {
         FollowMouse();
         UpdateVisual();
+
+        colObjs.RemoveAll(obj => obj == null || !obj.activeSelf);
+
 
         // 클릭으로 배치
         if (Input.GetMouseButtonDown(0) && isValidPlacement)
@@ -136,7 +140,7 @@ public class BuildingGhost : MonoBehaviour
 
             float playerDistance = Vector3.Distance(transform.position, ownerPlayer.transform.position);
 
-            if (playerDistance > 10 || collCount > 0)
+            if (playerDistance > 10 || colObjs.Count > 0)
             {
                 props.SetColor("_BaseColor", invalidColor);
                 isValidPlacement = false;
@@ -177,13 +181,14 @@ public class BuildingGhost : MonoBehaviour
         Destroy(gameObject);
     }
 
-    int collCount = 0;
+
+    List<GameObject> colObjs = new List<GameObject>();
 
     private void OnTriggerEnter(Collider other)
     {
         if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
         {
-            ++collCount;
+            colObjs.Add(other.gameObject);
         }
     }
 
@@ -191,7 +196,7 @@ public class BuildingGhost : MonoBehaviour
     {
         if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
         {
-            --collCount;
+            colObjs.Remove(other.gameObject);
         }
     }
 

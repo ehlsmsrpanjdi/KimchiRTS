@@ -34,7 +34,7 @@ public class BattleRangeDetector : MonoBehaviour
     public EntityBase GetClosestEntity(Vector3 position)
     {
         // null이거나 파괴된 엔티티 제거
-        monsterList.RemoveAll(e => e == null);
+        monsterList.RemoveAll(e => e.isActiveAndEnabled == false);
 
         if (monsterList.Count == 0)
             return null;
