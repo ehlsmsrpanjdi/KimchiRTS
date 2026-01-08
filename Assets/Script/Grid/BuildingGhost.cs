@@ -186,7 +186,7 @@ public class BuildingGhost : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
+        if ("Building" == LayerHelper.Instance.GetObjectLayer(other.gameObject) || "Entity" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
         {
             colObjs.Add(other.gameObject);
         }
@@ -194,7 +194,7 @@ public class BuildingGhost : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if ("Obstacle" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
+        if ("Building" == LayerHelper.Instance.GetObjectLayer(other.gameObject) || "Entity" == LayerHelper.Instance.GetObjectLayer(other.gameObject))
         {
             colObjs.Remove(other.gameObject);
         }

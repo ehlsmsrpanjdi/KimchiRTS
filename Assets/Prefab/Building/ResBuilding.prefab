@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: 3605333442712736911}
   - component: {fileID: 2999200775280846911}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: ResBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -149,13 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  sizeX: 1
-  sizeY: 1
-  grid: {fileID: 0}
-  gridPosition: {x: 0, y: 0}
-  blockNavigation: 1
-  carveHeight: 2
-  carveSizeMultiplier: 0.95
   healthBar: {fileID: 0}
   BuildingOwnerId:
     m_InternalValue: 0

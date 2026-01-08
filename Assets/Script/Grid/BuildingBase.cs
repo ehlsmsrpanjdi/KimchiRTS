@@ -3,21 +3,29 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
+
+public enum BuildingType
+{
+    None = 0,
+}
+
 public class BuildingBase : NetworkBehaviour, ITakeDamage, IPoolObj
 {
     [Header("Building Info")]
-    public int sizeX = 1;
-    public int sizeY = 1;
+    int sizeX = 1;
+    int sizeY = 1;
 
     [Header("Grid Reference")]
-    public GridArea grid;
-    public Vector2Int gridPosition;
+    GridArea grid;
+    Vector2Int gridPosition;
 
-    [Header("Navigation")]
-    public bool blockNavigation = true; // 네비게이션 차단 여부
-    public float carveHeight = 2f; // Carving 높이
-    [Range(0.8f, 1.0f)]
-    public float carveSizeMultiplier = 0.95f; // Carving 크기 조절 (그리드보다 약간 작게)
+    [SerializeField]
+    private BuildingType buildingType = BuildingType.None;
+
+    public BuildingType BuildingType => buildingType;
+
+    bool blockNavigation = true; // 네비게이션 차단 여부
+    float carveHeight = 2f; // Carving 높이
 
     private MeshRenderer meshRenderer;
     private NavMeshObstacle navMeshObstacle;
@@ -186,7 +194,10 @@ NetworkVariableWritePermission.Server
         RemoveNavMeshObstacle();
     }
 
-
+    public virtual void OnClicked()
+    {
+        UIManager.Instance.GetUI<BuildingUI>().Show();
+    }
     private void OnHealthChanged(float previousValue, float newValue)
     {
         if (healthBar != null)

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2975007617569000795}
   - component: {fileID: -5851778914619172823}
   - component: {fileID: 1925097504966133120}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: BattleBuilding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -150,13 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  sizeX: 1
-  sizeY: 1
-  grid: {fileID: 0}
-  gridPosition: {x: 0, y: 0}
-  blockNavigation: 1
-  carveHeight: 2
-  carveSizeMultiplier: 0.95
+  buildingType: 0
   healthBar: {fileID: 2260945846010686300}
   BuildingOwnerId:
     m_InternalValue: 0
@@ -165,8 +159,8 @@ MonoBehaviour:
   maxHP:
     m_InternalValue: 100
   detector: {fileID: 4676942502542681984}
-  attackInterval: 2
-  checkInterval: 0.5
+  attackInterval: 5
+  checkInterval: 1
 --- !u!1 &8195302675484739118
 GameObject:
   m_ObjectHideFlags: 0

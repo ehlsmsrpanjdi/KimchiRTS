@@ -10,6 +10,11 @@ public class MonsterSpawner : MonoBehaviour
 
     private void Awake()
     {
+
+    }
+
+    private void Start()
+    {
         MonsterSpawnManager.Instance.AddSpawner(this);
         gameObject.SetActive(false);
     }

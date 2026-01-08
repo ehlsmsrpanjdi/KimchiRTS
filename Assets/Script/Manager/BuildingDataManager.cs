@@ -34,17 +34,17 @@ public class BuildingDataManager
 
     void Fun_1()
     {
-        PoolManager.Instance.Pop("BattleGhost", Vector3.zero);
+        PoolManager.Instance.Pop("Battle", Vector3.zero);
     }
 
     void Fun_2()
     {
-        PoolManager.Instance.Pop("ResGhost", Vector3.zero);
+        PoolManager.Instance.Pop("Res", Vector3.zero);
     }
 
     void Fun_3()
     {
-        PoolManager.Instance.Pop("WallGhost", Vector3.zero);
+        PoolManager.Instance.Pop("Wall", Vector3.zero);
     }
 
     void CreateGhost(int _index)
