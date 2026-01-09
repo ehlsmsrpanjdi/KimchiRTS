@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PoolManager
 {
@@ -16,140 +15,105 @@ public class PoolManager
         }
     }
 
-    // string = prefab name
-    private Dictionary<string, Queue<GameObject>> poolDictionary
-        = new Dictionary<string, Queue<GameObject>>();
+    private Dictionary<string, Queue<GameObject>> poolDictionary = new();
 
-    // -----------------------------------------------------
-    // PUSH
-    // -----------------------------------------------------
+    // ==================== PUSH ====================
     public void Push(GameObject obj)
     {
-        // ✅ 서버에서만 Pool에 넣기
+        LogHelper.Log($"Push 시작: {obj.name}");
+
         var netObj = obj.GetComponent<NetworkObject>();
+        LogHelper.Log($"NetworkObject 존재: {netObj != null}");
+
         if (netObj != null)
         {
-            // 클라이언트면 무시 (Despawn이 자동으로 처리함)
+            LogHelper.Log($"IsServer: {NetworkManager.Singleton.IsServer}");
+
             if (!NetworkManager.Singleton.IsServer)
             {
+                LogHelper.Log("클라이언트라서 리턴");
                 return;
             }
 
+            LogHelper.Log($"IsSpawned: {netObj.IsSpawned}");
+
             if (netObj.IsSpawned)
             {
+                LogHelper.Log("Despawn 호출");
                 netObj.Despawn(false);
+                LogHelper.Log("Despawn 완료");
             }
+
+            return; // ✅ 여기서 리턴되는지 확인
         }
 
+        // NetworkObject 없으면 → 로컬 Pool (UI 등)
         string key = obj.name;
         if (!poolDictionary.ContainsKey(key))
             poolDictionary[key] = new Queue<GameObject>();
 
         obj.GetComponent<IPoolObj>()?.OnPush();
         obj.SetActive(false);
-
         poolDictionary[key].Enqueue(obj);
     }
 
-    // -----------------------------------------------------
-    // POP
-    // -----------------------------------------------------
-    public GameObject Pop(string key, Vector3 _position)
+    // ==================== POP ====================
+    public GameObject Pop(string key, Vector3 position)
     {
+        GameObject prefab = AssetManager.Instance.GetByName(key);
+        if (prefab == null)
+        {
+            Debug.LogError($"Prefab not found: {key}");
+            return null;
+        }
+
+        var netObj = prefab.GetComponent<NetworkObject>();
+
+        // NetworkObject 있으면 → 서버에서만 Spawn
+        if (netObj != null)
+        {
+            if (!NetworkManager.Singleton.IsServer)
+            {
+                Debug.LogWarning($"Client tried to spawn NetworkObject: {key}");
+                return null;
+            }
+
+            GameObject obj = GameObject.Instantiate(prefab, position, Quaternion.identity);
+            obj.name = key;
+
+            var networkObject = obj.GetComponent<NetworkObject>();
+            networkObject.Spawn(true); // Handler가 자동으로 Pool에서 꺼냄
+
+            obj.GetComponent<IPoolObj>()?.OnPop();
+            return obj;
+        }
+
+        // NetworkObject 없으면 → 로컬 Pool
         if (!poolDictionary.ContainsKey(key))
             poolDictionary[key] = new Queue<GameObject>();
 
-        GameObject obj = null;
+        GameObject localObj;
 
-        // Pool에서 꺼내기
         if (poolDictionary[key].Count > 0)
         {
-            obj = poolDictionary[key].Dequeue();
-            obj.SetActive(true);
-            obj.transform.position = _position;
+            localObj = poolDictionary[key].Dequeue();
+            localObj.transform.position = position;
+            localObj.SetActive(true);
         }
         else
         {
-            // 새로 생성
-            GameObject prefab = AssetManager.Instance.GetByName(key);
-            if (prefab == null)
-            {
-                Debug.LogError($"[PoolManager] Prefab not found: {key}");
-                return null;
-            }
-
-            obj = GameObject.Instantiate(prefab);
-            obj.name = key;
-            obj.transform.position = _position;
+            localObj = GameObject.Instantiate(prefab, position, Quaternion.identity);
+            localObj.name = key;
         }
 
-        // ✅ Spawn 처리
-        var netObj = obj.GetComponent<NetworkObject>();
-        if (netObj != null && !netObj.IsSpawned)
-        {
-            netObj.Spawn(true);
-        }
-
-        obj.GetComponent<IPoolObj>()?.OnPop();
-        return obj;
+        localObj.GetComponent<IPoolObj>()?.OnPop();
+        return localObj;
     }
+
     public GameObject Pop(string key)
     {
-        // 풀에 이 key가 없다면 초기화
-        if (!poolDictionary.ContainsKey(key))
-            poolDictionary[key] = new Queue<GameObject>();
-
-        // 풀에 객체가 없으면 새로 생성
-        if (poolDictionary[key].Count == 0)
-        {
-            GameObject prefab = AssetManager.Instance.GetByName(key);
-
-            if (prefab == null)
-            {
-                Debug.LogError($"[PoolManager] Prefab not found: {key}");
-                return null;
-            }
-
-            GameObject newObj = GameObject.Instantiate(prefab);
-            newObj.name = key; // 풀링 키 유지
-            newObj.GetComponent<IPoolObj>()?.OnPop();
-
-            var spawnedNetObj = newObj.GetComponent<NetworkObject>();
-            if (spawnedNetObj != null && !spawnedNetObj.IsSpawned)
-            {
-                spawnedNetObj.Spawn(true);  // Server에서 Spawn
-            }
-
-            return newObj;
-        }
-
-        // Pool에서 꺼내기
-        GameObject obj = null;
-        while (obj == null)
-        {
-            obj = poolDictionary[key].Dequeue();
-            if (poolDictionary[key].Count <= 0)
-            {
-                obj = MonoBehaviour.Instantiate(AssetManager.Instance.GetByName(key));
-                break;
-            }
-        }
-
-
-
-        obj.SetActive(true);
-
-        var netObj = obj.GetComponent<NetworkObject>();
-        if (netObj != null && !netObj.IsSpawned)
-        {
-            netObj.Spawn(true);  // Server에서 Spawn
-        }
-
-
-        obj.GetComponent<IPoolObj>()?.OnPop();
-        return obj;
+        return Pop(key, Vector3.zero);
     }
-
 }
 
 public interface IPoolObj

@@ -57,30 +57,31 @@ public class BuildingManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RemoveBuildingServerRpc(NetworkObjectReference buildingRef, ulong playerID)
     {
-        if (!IsServer) return;
+        LogHelper.Log($"RemoveBuildingServerRpc 호출됨 - IsServer: {IsServer}");
 
         if (buildingRef.TryGet(out NetworkObject networkObject))
         {
+            LogHelper.Log($"NetworkObject 찾음: {networkObject.name}");
+
             GameObject building = networkObject.gameObject;
             BuildingBase buildingBase = building.GetComponent<BuildingBase>();
-            if (buildingBase == null) return;
-
-            // ✅ 1. 리스트에서 제거
-            if (BuildingList.ContainsKey(playerID) &&
-                BuildingList[playerID].ContainsKey(buildingBase.BuildingType))
+            if (buildingBase == null)
             {
-                BuildingList[playerID][buildingBase.BuildingType].Remove(building);
+                LogHelper.LogError("BuildingBase null");
+                return;
             }
 
-            // ✅ 2. Grid에서 제거 (BuildingBase 내부 메서드 활용)
-            Vector2Int gridPos = buildingBase.gridPosition; // gridPosition을 public으로 변경 필요
-            int sizeX = buildingBase.sizeX; // sizeX를 public으로 변경 필요
-            int sizeY = buildingBase.sizeY; // sizeY를 public으로 변경 필요
+            LogHelper.Log($"Grid 제거 전 - gridPos: {buildingBase.gridPosition}");
+            GridArea.Instance.RemoveBuilding(buildingBase.gridPosition.x, buildingBase.gridPosition.y,
+                                            buildingBase.sizeX, buildingBase.sizeY);
 
-            GridArea.Instance.RemoveBuilding(gridPos.x, gridPos.y, sizeX, sizeY);
-
-            // ✅ 3. Pool로 반환 (이때 OnPush 호출됨)
+            LogHelper.Log("PoolManager.Push 호출");
             PoolManager.Instance.Push(building);
+            LogHelper.Log("PoolManager.Push 완료");
+        }
+        else
+        {
+            LogHelper.LogError("NetworkObjectReference.TryGet 실패");
         }
     }
 }

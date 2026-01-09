@@ -262,19 +262,29 @@ NetworkVariableWritePermission.Server
 
     public void OnPush()
     {
+        // ✅ Handler에서 호출됨
         currentTarget = null;
         currentTargetTransform = null;
         isTrackingPlayer = false;
+
+        if (agent != null)
+            agent.isStopped = true;
     }
 
     public void OnPop()
     {
-        if(!IsServer) return;
+        if (!IsServer) return;
 
+        // ✅ Handler에서 호출됨
         currentHP.Value = maxHP.Value;
-        healthBar.UpdateHealthPercent(1);
+        if (healthBar != null)
+            healthBar.UpdateHealthPercent(1);
+
         lastAttackTime = 0;
         lastTargetValidityCheckTime = 0;
+
+        if (agent != null)
+            agent.isStopped = false;
     }
 
     private void OnHealthChanged(float previousValue, float newValue)

@@ -125,4 +125,9 @@ public class AssetManager
     {
         return typeToPrefab.TryGetValue(type, out var prefab) ? prefab : null;
     }
+
+    public List<GameObject> GetPrefabsByLabel(string label)
+    {
+        return labelToPrefabs.TryGetValue(label, out var list) ? list : new List<GameObject>();
+    }
 }

@@ -105,21 +105,23 @@ public class BulletBase : NetworkBehaviour, IPoolObj
         isMoving = false;
         target = null;
 
-        // 풀로 반환 로직 (예시)
+        // ✅ 그냥 Despawn만 호출 (Handler가 Pool 반환 처리)
         if (NetworkObject != null && NetworkObject.IsSpawned)
         {
-            NetworkObject.Despawn();
+            NetworkObject.Despawn(false);
         }
     }
 
     public void OnPush()
     {
+        // ✅ Handler에서 호출됨 (SetActive(false) 이미 됨)
         isMoving = false;
         target = null;
     }
 
     public void OnPop()
     {
+        // ✅ Handler에서 호출됨 (SetActive(true) 이미 됨)
         spawnTime = Time.time;
         isMoving = true;
     }
