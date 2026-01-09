@@ -25,17 +25,25 @@ public class PoolManager
     // -----------------------------------------------------
     public void Push(GameObject obj)
     {
-        string key = obj.name;
+        // ✅ 서버에서만 Pool에 넣기
+        var netObj = obj.GetComponent<NetworkObject>();
+        if (netObj != null)
+        {
+            // 클라이언트면 무시 (Despawn이 자동으로 처리함)
+            if (!NetworkManager.Singleton.IsServer)
+            {
+                return;
+            }
 
+            if (netObj.IsSpawned)
+            {
+                netObj.Despawn(false);
+            }
+        }
+
+        string key = obj.name;
         if (!poolDictionary.ContainsKey(key))
             poolDictionary[key] = new Queue<GameObject>();
-
-        // ✅ NetworkObject Despawn 먼저
-        var netObj = obj.GetComponent<NetworkObject>();
-        if (netObj != null && netObj.IsSpawned)
-        {
-            netObj.Despawn(false); // destroy하지 않고 Despawn
-        }
 
         obj.GetComponent<IPoolObj>()?.OnPush();
         obj.SetActive(false);

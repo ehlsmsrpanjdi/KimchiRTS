@@ -179,6 +179,8 @@ NetworkVariableWritePermission.Server
 
     protected new void OnDestroy()
     {
+        LogHelper.LogWarrning($"OnDestroy 호출됨 - IsSpawned: {NetworkObject?.IsSpawned}, IsServer: {IsServer}");
+
         LogHelper.LogWarrning("이거 호출되면 안되는디");
         // 오브젝트가 파괴될 때 그리드에서도 제거
         if (grid != null)

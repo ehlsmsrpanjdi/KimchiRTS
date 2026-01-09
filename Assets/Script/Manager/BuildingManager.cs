@@ -57,6 +57,8 @@ public class BuildingManager : NetworkBehaviour
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RemoveBuildingServerRpc(NetworkObjectReference buildingRef, ulong playerID)
     {
+        if (!IsServer) return;
+
         if (buildingRef.TryGet(out NetworkObject networkObject))
         {
             GameObject building = networkObject.gameObject;
