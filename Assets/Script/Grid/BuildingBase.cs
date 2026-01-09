@@ -12,12 +12,12 @@ public enum BuildingType
 public class BuildingBase : NetworkBehaviour, ITakeDamage, IPoolObj
 {
     [Header("Building Info")]
-    int sizeX = 1;
-    int sizeY = 1;
+    public int sizeX = 1;
+    public int sizeY = 1;
 
     [Header("Grid Reference")]
     GridArea grid;
-    Vector2Int gridPosition;
+    public Vector2Int gridPosition;
 
     [SerializeField]
     private BuildingType buildingType = BuildingType.None;
@@ -155,18 +155,14 @@ NetworkVariableWritePermission.Server
         }
     }
 
-    // 빌딩 제거
-    public void RemoveBuilding()
+
+    private void RemoveBuilding()
     {
         if (grid != null)
         {
             grid.RemoveBuilding(gridPosition.x, gridPosition.y, sizeX, sizeY);
         }
-
         RemoveNavMeshObstacle();
-
-        // NavMeshObstacle도 함께 제거됨
-        PoolManager.Instance.Push(gameObject);
     }
 
     public virtual void OnSpecialEffect()
@@ -204,9 +200,20 @@ NetworkVariableWritePermission.Server
         {
             healthBar.UpdateHealthPercent(newValue / maxHP.Value);
         }
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealthPercent(newValue / maxHP.Value);
+        }
+
         if (newValue <= 0)
         {
-            RemoveBuilding();
+            if (IsServer)
+            {
+                BuildingManager.Instance.RemoveBuildingServerRpc(
+                    new NetworkObjectReference(GetComponent<NetworkObject>()),
+                    BuildingOwnerId.Value
+                );
+            }
         }
     }
 
@@ -246,10 +253,12 @@ NetworkVariableWritePermission.Server
 
     public virtual void OnPush()
     {
-        RemoveBuilding();
+        RemoveNavMeshObstacle();
     }
 
     public virtual void OnPop()
     {
     }
+
+
 }

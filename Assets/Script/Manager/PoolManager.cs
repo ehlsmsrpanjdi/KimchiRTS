@@ -30,10 +30,17 @@ public class PoolManager
         if (!poolDictionary.ContainsKey(key))
             poolDictionary[key] = new Queue<GameObject>();
 
-        poolDictionary[key].Enqueue(obj);
+        // ✅ NetworkObject Despawn 먼저
+        var netObj = obj.GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned)
+        {
+            netObj.Despawn(false); // destroy하지 않고 Despawn
+        }
 
         obj.GetComponent<IPoolObj>()?.OnPush();
         obj.SetActive(false);
+
+        poolDictionary[key].Enqueue(obj);
     }
 
     // -----------------------------------------------------
@@ -41,62 +48,43 @@ public class PoolManager
     // -----------------------------------------------------
     public GameObject Pop(string key, Vector3 _position)
     {
-        // 풀에 이 key가 없다면 초기화
         if (!poolDictionary.ContainsKey(key))
             poolDictionary[key] = new Queue<GameObject>();
 
-        // 풀에 객체가 없으면 새로 생성
-        if (poolDictionary[key].Count == 0)
-        {
-            GameObject prefab = AssetManager.Instance.GetByName(key);
+        GameObject obj = null;
 
+        // Pool에서 꺼내기
+        if (poolDictionary[key].Count > 0)
+        {
+            obj = poolDictionary[key].Dequeue();
+            obj.SetActive(true);
+            obj.transform.position = _position;
+        }
+        else
+        {
+            // 새로 생성
+            GameObject prefab = AssetManager.Instance.GetByName(key);
             if (prefab == null)
             {
                 Debug.LogError($"[PoolManager] Prefab not found: {key}");
                 return null;
             }
 
-            GameObject newObj = GameObject.Instantiate(prefab);
-            newObj.name = key; // 풀링 키 유지
-            newObj.GetComponent<IPoolObj>()?.OnPop();
-            newObj.transform.position = _position;
-
-            var spawnedNetObj = newObj.GetComponent<NetworkObject>();
-            if (spawnedNetObj != null && !spawnedNetObj.IsSpawned)
-            {
-                spawnedNetObj.Spawn(true);  // Server에서 Spawn
-            }
-
-            return newObj;
+            obj = GameObject.Instantiate(prefab);
+            obj.name = key;
+            obj.transform.position = _position;
         }
 
-        // Pool에서 꺼내기
-        GameObject obj = null;
-        while (obj == null)
-        {
-            obj = poolDictionary[key].Dequeue();
-            if (poolDictionary[key].Count <= 0)
-            {
-                obj = MonoBehaviour.Instantiate(AssetManager.Instance.GetByName(key));
-                break;
-            }
-        }
-
-
-
-        obj.SetActive(true);
-
+        // ✅ Spawn 처리
         var netObj = obj.GetComponent<NetworkObject>();
         if (netObj != null && !netObj.IsSpawned)
         {
-            netObj.Spawn(true);  // Server에서 Spawn
+            netObj.Spawn(true);
         }
-
 
         obj.GetComponent<IPoolObj>()?.OnPop();
         return obj;
     }
-
     public GameObject Pop(string key)
     {
         // 풀에 이 key가 없다면 초기화

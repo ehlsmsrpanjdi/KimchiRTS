@@ -63,12 +63,22 @@ public class BuildingManager : NetworkBehaviour
             BuildingBase buildingBase = building.GetComponent<BuildingBase>();
             if (buildingBase == null) return;
 
+            // ✅ 1. 리스트에서 제거
             if (BuildingList.ContainsKey(playerID) &&
                 BuildingList[playerID].ContainsKey(buildingBase.BuildingType))
             {
                 BuildingList[playerID][buildingBase.BuildingType].Remove(building);
-                PoolManager.Instance.Push(building);
             }
+
+            // ✅ 2. Grid에서 제거 (BuildingBase 내부 메서드 활용)
+            Vector2Int gridPos = buildingBase.gridPosition; // gridPosition을 public으로 변경 필요
+            int sizeX = buildingBase.sizeX; // sizeX를 public으로 변경 필요
+            int sizeY = buildingBase.sizeY; // sizeY를 public으로 변경 필요
+
+            GridArea.Instance.RemoveBuilding(gridPos.x, gridPos.y, sizeX, sizeY);
+
+            // ✅ 3. Pool로 반환 (이때 OnPush 호출됨)
+            PoolManager.Instance.Push(building);
         }
     }
 }
