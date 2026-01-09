@@ -130,4 +130,16 @@ public class AssetManager
     {
         return labelToPrefabs.TryGetValue(label, out var list) ? list : new List<GameObject>();
     }
+
+    public GameObject Spawn(string name)
+    {
+        if (true == nameToPrefab.TryGetValue(name, out var prefab))
+        {
+            return GameObject.Instantiate(prefab);
+        }
+        else
+        {
+            return null;
+        }
+    }
 }

@@ -20,8 +20,8 @@ public class LoadManager
     {
         await AssetManager.Instance.LoadByLabelAsync("Entity");
         await AssetManager.Instance.LoadByLabelAsync("Building");
-        await AssetManager.Instance.LoadByLabelAsync("UI");
         await AssetManager.Instance.LoadByLabelAsync("Bullet");
+        await AssetManager.Instance.LoadByLabelAsync("UI");
     }
 }
 

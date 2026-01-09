@@ -34,22 +34,21 @@ public class BuildingDataManager
 
     void Fun_1()
     {
-        PoolManager.Instance.Pop("Battle", Vector3.zero);
+        GameObject obj = AssetManager.Instance.Spawn("Battle");
     }
 
     void Fun_2()
     {
-        PoolManager.Instance.Pop("Res", Vector3.zero);
+        GameObject obj = AssetManager.Instance.Spawn("Res");
     }
 
     void Fun_3()
     {
-        PoolManager.Instance.Pop("Wall", Vector3.zero);
+        GameObject obj = AssetManager.Instance.Spawn("Wall");
     }
 
     void CreateGhost(int _index)
     {
         PoolManager.Instance.Pop("WallGhost", Vector3.zero);
     }
-
 }

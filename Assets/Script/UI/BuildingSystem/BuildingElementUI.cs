@@ -9,16 +9,17 @@ public class BuildingElementUI : MonoBehaviour
     {
         foreach (GameObject card in cardList)
         {
-            PoolManager.Instance.Push(card);
+            Destroy(card);
         }
         cardList.Clear();
     }
 
     public void AddCard(int _index)
     {
-        GameObject cardObj = PoolManager.Instance.Pop(ResourceString.BuildCardName);
-        cardObj.transform.SetParent(transform);
-        cardObj.GetComponent<BuildCard>().InitCard(_index);
-        cardList.Add(cardObj);
+        GameObject cardObj = AssetManager.Instance.GetByName(ResourceString.BuildCardName);
+        GameObject spawnedCardObj = Instantiate(cardObj);
+        spawnedCardObj.transform.SetParent(transform);
+        spawnedCardObj.GetComponent<BuildCard>().InitCard(_index);
+        cardList.Add(spawnedCardObj);
     }
 }

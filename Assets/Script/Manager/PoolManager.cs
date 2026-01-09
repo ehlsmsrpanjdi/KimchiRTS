@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// PoolManager.cs
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -15,109 +16,92 @@ public class PoolManager
         }
     }
 
-    private Dictionary<string, Queue<GameObject>> poolDictionary = new();
+    // ✅ 기존 타입 그대로 유지
+    private readonly Dictionary<string, Queue<GameObject>> poolDictionary
+        = new Dictionary<string, Queue<GameObject>>();
 
-    // ==================== PUSH ====================
-    public void Push(GameObject obj)
+    // 서버 전용 가드 (에디터에서 실수 잡기)
+    private static void AssertServer()
     {
-        LogHelper.Log($"Push 시작: {obj.name}");
-
-        var netObj = obj.GetComponent<NetworkObject>();
-        LogHelper.Log($"NetworkObject 존재: {netObj != null}");
-
-        if (netObj != null)
-        {
-            LogHelper.Log($"IsServer: {NetworkManager.Singleton.IsServer}");
-
-            if (!NetworkManager.Singleton.IsServer)
-            {
-                LogHelper.Log("클라이언트라서 리턴");
-                return;
-            }
-
-            LogHelper.Log($"IsSpawned: {netObj.IsSpawned}");
-
-            if (netObj.IsSpawned)
-            {
-                LogHelper.Log("Despawn 호출");
-                netObj.Despawn(false);
-                LogHelper.Log("Despawn 완료");
-            }
-
-            return; // ✅ 여기서 리턴되는지 확인
-        }
-
-        // NetworkObject 없으면 → 로컬 Pool (UI 등)
-        string key = obj.name;
-        if (!poolDictionary.ContainsKey(key))
-            poolDictionary[key] = new Queue<GameObject>();
-
-        obj.GetComponent<IPoolObj>()?.OnPush();
-        obj.SetActive(false);
-        poolDictionary[key].Enqueue(obj);
+        if (NetworkManager.Singleton != null)
+            Debug.Assert(NetworkManager.Singleton.IsServer);
     }
 
-    // ==================== POP ====================
+    /// <summary>
+    /// ✅ 서버 전용
+    /// ✅ 이 함수는 "꺼내기만" 합니다. (Spawn/SetActive 절대 안 함)
+    /// </summary>
     public GameObject Pop(string key, Vector3 position)
     {
-        GameObject prefab = AssetManager.Instance.GetByName(key);
-        if (prefab == null)
+        AssertServer();
+
+        if (!poolDictionary.TryGetValue(key, out var q))
         {
-            Debug.LogError($"Prefab not found: {key}");
-            return null;
+            q = new Queue<GameObject>();
+            poolDictionary[key] = q;
         }
 
-        var netObj = prefab.GetComponent<NetworkObject>();
+        GameObject obj = null;
 
-        // NetworkObject 있으면 → 서버에서만 Spawn
-        if (netObj != null)
+        // 큐에서 살아있는 객체를 찾음 (혹시 null 들어간 경우 대비)
+        while (q.Count > 0 && obj == null)
         {
-            if (!NetworkManager.Singleton.IsServer)
+            obj = q.Dequeue();
+        }
+
+        // 없으면 새로 생성 (서버에서만)
+        if (obj == null)
+        {
+            GameObject prefab = AssetManager.Instance.GetByName(key);
+            if (prefab == null)
             {
-                Debug.LogWarning($"Client tried to spawn NetworkObject: {key}");
+                Debug.LogError($"[PoolManager] Prefab not found: {key}");
                 return null;
             }
 
-            GameObject obj = GameObject.Instantiate(prefab, position, Quaternion.identity);
+            obj = Object.Instantiate(prefab);
             obj.name = key;
-
-            var networkObject = obj.GetComponent<NetworkObject>();
-            networkObject.Spawn(true); // Handler가 자동으로 Pool에서 꺼냄
-
-            obj.GetComponent<IPoolObj>()?.OnPop();
-            return obj;
         }
 
-        // NetworkObject 없으면 → 로컬 Pool
-        if (!poolDictionary.ContainsKey(key))
-            poolDictionary[key] = new Queue<GameObject>();
+        obj.transform.position = position;
 
-        GameObject localObj;
+        // 서버 초기화 훅 (서버만 호출)
+        obj.GetComponent<IPoolObj>()?.OnPop();
 
-        if (poolDictionary[key].Count > 0)
-        {
-            localObj = poolDictionary[key].Dequeue();
-            localObj.transform.position = position;
-            localObj.SetActive(true);
-        }
-        else
-        {
-            localObj = GameObject.Instantiate(prefab, position, Quaternion.identity);
-            localObj.name = key;
-        }
-
-        localObj.GetComponent<IPoolObj>()?.OnPop();
-        return localObj;
+        return obj;
     }
 
-    public GameObject Pop(string key)
+    /// <summary>
+    /// ✅ 서버 전용
+    /// ✅ 이 함수는 "보관만" 합니다. (SetActive 절대 안 함)
+    /// ⚠️ 호출 전에 반드시 netObj.Despawn(false)가 선행되어야 합니다.
+    /// </summary>
+    public void Push(GameObject obj)
     {
-        return Pop(key, Vector3.zero);
+        AssertServer();
+
+        if (obj == null) return;
+
+        obj.SetActive(false);
+
+        string key = obj.name;
+
+        if (!poolDictionary.TryGetValue(key, out var q))
+        {
+            q = new Queue<GameObject>();
+            poolDictionary[key] = q;
+        }
+
+        // 서버 정리 훅 (서버만 호출)
+        obj.GetComponent<IPoolObj>()?.OnPush();
+
+        q.Enqueue(obj);
     }
 }
 
 public interface IPoolObj
 {
+    // ⚠️ 서버에서만 호출된다고 가정하는 훅
     void OnPush();
     void OnPop();
 }

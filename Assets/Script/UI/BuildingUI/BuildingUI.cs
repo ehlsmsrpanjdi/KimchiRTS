@@ -53,6 +53,12 @@ public class BuildingUI : UIBase
     {
         BuildingBase selectedBuilding = BuildingClickController.Instance.selectedBuilding;
 
+        if (selectedBuilding == null)
+        {
+            Debug.LogError("[BuildingUI] No building selected to destroy.");
+            return;
+        }
+
         NetworkObjectReference reference = new NetworkObjectReference(selectedBuilding.NetworkObject);
         BuildingManager.Instance.RemoveBuildingServerRpc(reference, GameInstance.Instance.GetPlayerID());
 

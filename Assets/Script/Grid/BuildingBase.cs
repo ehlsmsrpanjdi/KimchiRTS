@@ -194,6 +194,12 @@ NetworkVariableWritePermission.Server
 
     public virtual void OnClicked()
     {
+
+        if (BuildingOwnerId.Value != GameInstance.Instance.GetPlayerID())
+        {
+            Debug.LogWarning("Unauthorized building removal attempt");
+            return;
+        }
         UIManager.Instance.GetUI<BuildingUI>().Show();
     }
     private void OnHealthChanged(float previousValue, float newValue)
@@ -255,7 +261,13 @@ NetworkVariableWritePermission.Server
 
     public virtual void OnPush()
     {
+        LogHelper.Log($"BuildingBase.OnPush: {gameObject.name}");
         RemoveNavMeshObstacle();
+
+        if (grid != null)
+        {
+            grid.RemoveBuilding(gridPosition.x, gridPosition.y, sizeX, sizeY);
+        }
     }
 
     public virtual void OnPop()

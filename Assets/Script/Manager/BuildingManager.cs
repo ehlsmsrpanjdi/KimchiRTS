@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// BuildingManager.cs
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,77 +12,90 @@ public class BuildingManager : NetworkBehaviour
         Instance = this;
     }
 
-    Dictionary<ulong, Dictionary<BuildingType, List<GameObject>>> BuildingList = new();
+    // 서버에서만 쓰는 관리 리스트
+    private readonly Dictionary<ulong, Dictionary<BuildingType, List<GameObject>>> BuildingList = new();
 
-    //   이 메세지는 서버한테 보낸다,  이 함수는 서버가 누구한테 다시 보낼거다
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
-    public void PlaceBuildingServerRpc(string buildingName, Vector3 worldPos, Vector2Int currentGridPos, int width, int height, ulong playerID)
+    public void PlaceBuildingServerRpc(string buildingName, Vector3 worldPos, Vector2Int currentGridPos,
+        int width, int height, ulong playerID)
     {
-        var buildingToSpawn = PoolManager.Instance.Pop(buildingName, worldPos);
+        if (!IsServer) return;
 
-        buildingToSpawn.transform.rotation = Quaternion.identity;
+        // 1) 서버 풀에서 꺼냄 (Spawn/SetActive 안 함)
+        GameObject buildingGo = PoolManager.Instance.Pop(buildingName, worldPos);
+        if (buildingGo == null) return;
 
-        //buildingToSpawn.GetComponent<NetworkObject>().Spawn();
+        buildingGo.transform.rotation = Quaternion.identity;
 
-        // BuildingBase 컴포넌트 가져오기 또는 추가
-        BuildingBase buildingBase = buildingToSpawn.GetComponent<BuildingBase>();
-        if (buildingBase == null)
+        // 2) NetworkObject 필수
+        var netObj = buildingGo.GetComponent<NetworkObject>();
+        if (netObj == null)
         {
-            LogHelper.LogError("BuildingBase Component is Null");
+            Debug.LogError($"[BuildingManager] NetworkObject missing on {buildingName}");
+            return;
         }
 
-        // 빌딩 정보 설정
-        buildingBase.SetGridInfo(currentGridPos, width, height);
+        // 3) BuildingBase 세팅
+        BuildingBase buildingBase = buildingGo.GetComponent<BuildingBase>();
+        if (buildingBase == null)
+        {
+            Debug.LogError("[BuildingManager] BuildingBase Component is Null");
+            return;
+        }
 
+        buildingBase.SetGridInfo(currentGridPos, width, height);
         buildingBase.BuildingOwnerId.Value = playerID;
 
-        // 그리드에 등록
-        GridArea.Instance.PlaceBuilding(buildingToSpawn, currentGridPos.x, currentGridPos.y, width, height);
+        // 4) 네트워크 Spawn (모든 클라 자동 생성/활성)
+        //    이미 Spawn된 객체면 예외/경고 날 수 있으니 방어
+        if (!netObj.IsSpawned)
+            netObj.Spawn();
 
+        // 5) 서버 그리드 등록 (서버 권한 상태)
+        GridArea.Instance.PlaceBuilding(buildingGo, currentGridPos.x, currentGridPos.y, width, height);
 
+        // 6) 서버 관리 리스트 등록
         if (!BuildingList.TryGetValue(playerID, out var typeDict))
         {
             typeDict = new Dictionary<BuildingType, List<GameObject>>();
             BuildingList[playerID] = typeDict;
         }
 
-        if (!typeDict.TryGetValue(buildingBase.BuildingType, out var list))
+        var typeKey = buildingBase.BuildingType;
+        if (!typeDict.TryGetValue(typeKey, out var list))
         {
             list = new List<GameObject>();
-            typeDict[buildingBase.BuildingType] = list;
+            typeDict[typeKey] = list;
         }
 
-        list.Add(buildingToSpawn);
+        list.Add(buildingGo);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     public void RemoveBuildingServerRpc(NetworkObjectReference buildingRef, ulong playerID)
     {
-        LogHelper.Log($"RemoveBuildingServerRpc 호출됨 - IsServer: {IsServer}");
+        if (!IsServer) return;
 
-        if (buildingRef.TryGet(out NetworkObject networkObject))
+        if (!buildingRef.TryGet(out NetworkObject netObj)) return;
+
+        GameObject buildingGo = netObj.gameObject;
+
+        BuildingBase buildingBase = buildingGo.GetComponent<BuildingBase>();
+        if (buildingBase == null) return;
+
+        // 1) 서버 관리 리스트에서 제거
+        if (BuildingList.TryGetValue(playerID, out var typeDict) &&
+            typeDict.TryGetValue(buildingBase.BuildingType, out var list))
         {
-            LogHelper.Log($"NetworkObject 찾음: {networkObject.name}");
-
-            GameObject building = networkObject.gameObject;
-            BuildingBase buildingBase = building.GetComponent<BuildingBase>();
-            if (buildingBase == null)
-            {
-                LogHelper.LogError("BuildingBase null");
-                return;
-            }
-
-            LogHelper.Log($"Grid 제거 전 - gridPos: {buildingBase.gridPosition}");
-            GridArea.Instance.RemoveBuilding(buildingBase.gridPosition.x, buildingBase.gridPosition.y,
-                                            buildingBase.sizeX, buildingBase.sizeY);
-
-            LogHelper.Log("PoolManager.Push 호출");
-            PoolManager.Instance.Push(building);
-            LogHelper.Log("PoolManager.Push 완료");
+            list.Remove(buildingGo);
         }
-        else
-        {
-            LogHelper.LogError("NetworkObjectReference.TryGet 실패");
-        }
+
+        // 2) 네트워크 Despawn (모든 클라에서 자동으로 비활성/제거됨)
+        //    Destroy=false → 메모리에 남음 (풀링 가능)
+        if (netObj.IsSpawned)
+            netObj.Despawn(false);
+
+        // 3) 서버 풀에 반환 (SetActive 금지)
+        PoolManager.Instance.Push(buildingGo);
     }
 }
